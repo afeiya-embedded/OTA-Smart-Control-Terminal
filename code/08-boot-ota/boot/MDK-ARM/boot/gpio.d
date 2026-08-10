@@ -8,14 +8,14 @@ boot\gpio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h
 boot\gpio.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h
 boot\gpio.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h
 boot\gpio.o: ../Drivers/CMSIS/Include/core_cm3.h
-boot\gpio.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+boot\gpio.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 boot\gpio.o: ../Drivers/CMSIS/Include/cmsis_version.h
 boot\gpio.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 boot\gpio.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 boot\gpio.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h
 boot\gpio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 boot\gpio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-boot\gpio.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+boot\gpio.o: E:\Keil\ARM\ARMCC\Bin\..\include\stddef.h
 boot\gpio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h
 boot\gpio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h
 boot\gpio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h
