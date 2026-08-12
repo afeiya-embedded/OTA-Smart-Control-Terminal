@@ -34,13 +34,6 @@
 - [CANopen](CANopen.md)：CAN 总线、对象字典、PDO/SDO 与节点通信。
 - [OTA](OTA.md)：BootLoader 工作方式、双分区升级流程及 Flash 分区示例。
 
-## 开始使用
-
-1. 安装 Keil MDK-ARM，并准备与工程匹配的 STM32F1 器件支持包和下载器。
-2. 按学习顺序打开 `code` 下对应目录的 `.uvprojx` 文件，编译并下载到开发板。
-3. 使用串口查看运行日志；涉及 Modbus、CANopen、Wi-Fi 或 4G 时，连接对应的通信模块与总线。
-4. MQTT 示例需要先在工程配置中填写 Wi-Fi/蜂窝网络参数以及 MQTT Broker、主题和鉴权信息，再进行编译下载。
-
 ## OTA 升级流程
 
 OTA 工程采用 BootLoader + App1 + App2 的双应用分区设计：

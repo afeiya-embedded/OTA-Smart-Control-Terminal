@@ -104,25 +104,25 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-	printf("Uart1 init is ok\n");
-	printf("Modbus Test\n");  
-	//EEPROM_Test();
-	OLED_Init();
-	OLED_CLS(); // 清除屏幕显示
-	OLED_ShowStr(16,0, (unsigned char*)"Modbus Control", 2);	
-	AHT20_Init();
-	INA226_Init();
+  printf("Uart1 init is ok\n");
+  printf("Modbus Test\n");  
+  //EEPROM_Test();
+  OLED_Init();
+  OLED_CLS(); // 清除屏幕显示
+  OLED_ShowStr(16,0, (unsigned char*)"Modbus Control", 2);	
+  AHT20_Init();
+  INA226_Init();
 	
-	HAL_TIM_Base_Start_IT(&htim1); // 使能定时器1中断 
-	Modbus_Init();
+  HAL_TIM_Base_Start_IT(&htim1); // 使能定时器1中断 
+  Modbus_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		eMBPoll();// 轮训查询	
-		Modbus_Parse(); 
+	eMBPoll();// 轮训查询	
+	Modbus_Parse(); 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
