@@ -54,8 +54,8 @@
 //06
 主机发送: 01 06 00 00 00 01 48 0A
 从机回复: 01 06 00 00 00 01 48 0A
-发送：从机的地址+我要⼲嘛的功能码+我要查的寄存器的地址+我要修改的数据+校验码
-回复：从机的地址+主机发我的功能码+我要查的寄存器的地址+我要修改的数据+校验码
+发送：从机的地址+我要⼲嘛的功能码+我要改的寄存器的地址+我要修改的数据+校验码
+回复：从机的地址+主机发我的功能码+我要改的寄存器的地址+我要修改的数据+校验码
 ```
 
 ---
@@ -130,11 +130,477 @@ MB_TCP /*!< TCP mode. */
 - baudrate>19200时 此种情况下次数T=1750/50=35；所以我们从代码中可以看到波特率⼤于19200的时候，次数固定为35。
 - baudrate≤19200时我们知道串⼝⼀般发送的格式为⼀个起始位、8或者9位数据位、⼀位停⽌位、⼀般⽆校验或者⼀位校验位。加起来⼀帧⼤概有11个⼆进制位（不同的配置有所差别，这⾥取11个⽐较合适）。所以传送⼀个字符的时间就是11/baudrate（单位：s），传送3.5个字符的时间就是（7/2）（11/baudrate）（单位：s），由于我们定时器50us中断⼀次，1s=20000个50us，所以对应的50us的次数就是(7/2) (11/baudrate)20000=(7220000)/(2*baudrate);
 
+```c
+//port.c
+
+
+#include "mb.h"
+#include "mbport.h"
+#include <stdio.h>
+#include "modbus.h"
+
+// 十路线圈   可读可写的 位控制
+#define REG_COILS_SIZE 10
+uint8_t REG_COILS_BUF[REG_COILS_SIZE] = {1, 1, 1, 1, 0, 0, 0, 0, 1, 1};
+// 低位在前， 高位再后
+// 1, 1, 1, 1, 0, 0, 0, 0, | 1, 1
+// 0  1  2  3  4  5  6  7  | 8  9 
+// 0f                      | 03 
+// 对应的十六进制数为： 0x0f 0x03
+
+// 十路离散量 只读的线圈  只读的位控制 
+#define REG_DISC_SIZE  10
+uint8_t REG_DISC_BUF[REG_DISC_SIZE] = {1,1,1,1,0,0,0,0,1,1};
+
+// 十路保持寄存器  可读可写的2字节寄存器
+#define REG_HOLD_SIZE   10
+uint16_t REG_HOLD_BUF[REG_HOLD_SIZE];
+
+
+// 十路输入寄存器  只读保持寄存器 只读的2字节寄存器 
+#define REG_INPUT_SIZE  10
+uint16_t REG_INPUT_BUF[REG_INPUT_SIZE];
+
+
+// CMD4命令处理回调函数 
+//0x04: 读输入寄存器
+eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
+{
+    USHORT usRegIndex = usAddress - 1;
+
+    // 非法检测
+    if((usRegIndex + usNRegs) > REG_INPUT_SIZE)
+    {
+        return MB_ENOREG;
+    }
+
+    // 循环读取
+    while( usNRegs > 0 )
+    {
+        *pucRegBuffer++ = ( unsigned char )( REG_INPUT_BUF[usRegIndex] >> 8 );
+        *pucRegBuffer++ = ( unsigned char )( REG_INPUT_BUF[usRegIndex] & 0xFF );
+        usRegIndex++;
+        usNRegs--;
+    }
+
+    // 模拟输入寄存器被改变
+    for(usRegIndex = 0; usRegIndex < REG_INPUT_SIZE; usRegIndex++)
+    {
+        REG_INPUT_BUF[usRegIndex]++;
+    }
+
+    return MB_ENOERR;
+}
+
+// CMD6、3、16命令处理回调函数 
+//0x03: 读保持寄存器 0x06: 写单个保持寄存器 0x0f: 写多个线圈寄存器
+eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
+{
+    USHORT usRegIndex = usAddress - 1;
+
+    // 非法检测
+    if((usRegIndex + usNRegs) > REG_HOLD_SIZE)
+    {
+        return MB_ENOREG;
+    }
+
+    // 写寄存器
+    if(eMode == MB_REG_WRITE)
+    {
+        while( usNRegs > 0 )
+        {
+            REG_HOLD_BUF[usRegIndex] = (pucRegBuffer[0] << 8) | pucRegBuffer[1];
+            pucRegBuffer += 2;
+            usRegIndex++;
+            usNRegs--;
+        }
+			//printf("usAddress=%d\n",usAddress);
+			// 修改从机地址 REG_HOLD_BUF[9] 的值就是新的从机地址
+			if(usAddress == 10 ) 
+			{
+				Modify_SlaveAdress_Flag = 1; //  会触发1次修改从机地址
+			}
+    }
+
+    // 读寄存器
+    else
+    {
+        while( usNRegs > 0 )
+        {
+            *pucRegBuffer++ = ( unsigned char )( REG_HOLD_BUF[usRegIndex] >> 8 );
+            *pucRegBuffer++ = ( unsigned char )( REG_HOLD_BUF[usRegIndex] & 0xFF );
+            usRegIndex++;
+            usNRegs--;
+        }
+    }
+
+    return MB_ENOERR;
+}
+
+// CMD1、5、15命令处理回调函数
+//0x01: 读线圈寄存器 0x05: 写单个线圈寄存器 
+eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils, eMBRegisterMode eMode )
+{
+    USHORT usRegIndex   = usAddress - 1;
+    UCHAR  ucBits       = 0;
+    UCHAR  ucState      = 0;
+    UCHAR  ucLoops      = 0;
+
+    // 非法检测
+    if((usRegIndex + usNCoils) > REG_COILS_SIZE)
+    {
+        return MB_ENOREG;
+    }
+
+    if(eMode == MB_REG_WRITE)
+    {
+        ucLoops = (usNCoils - 1) / 8 + 1;
+        while(ucLoops != 0)
+        {
+            ucState = *pucRegBuffer++;
+            ucBits  = 0;
+            while(usNCoils != 0 && ucBits < 8)
+            {
+                REG_COILS_BUF[usRegIndex++] = (ucState >> ucBits) & 0X01;
+                usNCoils--;
+                ucBits++;
+            }
+            ucLoops--;
+        }
+    }
+    else
+    {
+        ucLoops = (usNCoils - 1) / 8 + 1;
+        while(ucLoops != 0)
+        {
+            ucState = 0;
+            ucBits  = 0;
+            while(usNCoils != 0 && ucBits < 8)
+            {
+                if(REG_COILS_BUF[usRegIndex])
+                {
+                    ucState |= (1 << ucBits);
+                }
+                usNCoils--;
+                usRegIndex++;
+                ucBits++;
+            }
+            *pucRegBuffer++ = ucState;
+            ucLoops--;
+        }
+    }
+
+    return MB_ENOERR;
+}
+
+// CMD2命令处理回调函数
+//0x02: 读离散输入寄存器
+eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
+{
+    USHORT usRegIndex   = usAddress - 1;
+    UCHAR  ucBits       = 0;
+    UCHAR  ucState      = 0;
+    UCHAR  ucLoops      = 0;
+
+    // 非法检测
+    if((usRegIndex + usNDiscrete) > REG_DISC_SIZE)
+    {
+        return MB_ENOREG;
+    }
+
+    ucLoops = (usNDiscrete - 1) / 8 + 1;
+    while(ucLoops != 0)
+    {
+        ucState = 0;
+        ucBits  = 0;
+        while(usNDiscrete != 0 && ucBits < 8)
+        {
+            if(REG_DISC_BUF[usRegIndex])
+            {
+                ucState |= (1 << ucBits);
+            }
+            usNDiscrete--;
+            usRegIndex++;
+            ucBits++;
+        }
+        *pucRegBuffer++ = ucState;
+        ucLoops--;
+    }
+
+    // 模拟离散量输入被改变
+    for(usRegIndex = 0; usRegIndex < REG_DISC_SIZE; usRegIndex++)
+    {
+        REG_DISC_BUF[usRegIndex] = !REG_DISC_BUF[usRegIndex];
+    }
+
+    return MB_ENOERR;
+}
+```
+
+```c
+//porttimer.c
+
+/*
+ * FreeModbus Libary: BARE Port
+ * Copyright (C) 2006 Christian Walter <wolti@sil.at>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * File: $Id$
+ */
+
+/* ----------------------- Platform includes --------------------------------*/
+#include "port.h"
+#include "tim.h"
+#include <stdio.h>
+
+/* ----------------------- Modbus includes ----------------------------------*/
+#include "mb.h"
+#include "mbport.h"
+
+/* ----------------------- static functions ---------------------------------*/
+static void prvvTIMERExpiredISR( void );
+
+/* ----------------------- Start implementation -----------------------------*/
+BOOL xMBPortTimersInit( USHORT usTim1Timerout50us )
+{
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+    htim3.Instance = TIM3;
+	// 72M/ (7199+1) = 10KHz 
+	// 定时器工作一次的时间为 100us 
+	// 72M/ (3599+1) = 20KHz 
+	// 定时器工作一次的时间为 50us 
+		
+    htim3.Init.Prescaler = 3599;								  // 50us 记一次数
+	//  htim3.Init.Prescaler = 7199;								// 100us记一次数
+    htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim3.Init.Period = usTim1Timerout50us - 1;		// usTim1Timerout50us * 50即为定时器溢出时间
+    htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    {
+        return FALSE;
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        return FALSE;
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        return FALSE;
+    }
+
+	__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);// 先清除一下定时器的中断标记,防止使能中断后直接触发中断
+   __HAL_TIM_ENABLE_IT(&htim3, TIM_IT_UPDATE);// 使能定时器更新中断
+    return TRUE;
+}
+
+inline void vMBPortTimersEnable(  )
+{
+    __HAL_TIM_SET_COUNTER(&htim3, 0);		// 清空计数器
+    __HAL_TIM_ENABLE(&htim3);					// 使能定时器
+}
+
+inline void vMBPortTimersDisable(  )
+{
+    __HAL_TIM_DISABLE(&htim3);					// 禁能定时器
+}
+
+/* Create an ISR which is called whenever the timer has expired. This function
+ * must then call pxMBPortCBTimerExpired( ) to notify the protocol stack that
+ * the timer has expired.
+ */
+static void prvvTIMERExpiredISR( void )
+{
+    ( void )pxMBPortCBTimerExpired(  );
+}
+
+// 定时器3中断服务程序
+void TIM3_IRQHandler(void)
+{
+    if(__HAL_TIM_GET_FLAG(&htim3, TIM_FLAG_UPDATE))			// 更新中断标记被置位
+    {
+        __HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);		// 清除中断标记
+        prvvTIMERExpiredISR();								// 通知modbus3.5个字符等待时间到
+    }
+}
+
+```
+
+```c
+//portserial.c
+
+/*
+ * FreeModbus Libary: BARE Port
+ * Copyright (C) 2006 Christian Walter <wolti@sil.at>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * File: $Id$
+ */
+
+#include "port.h"
+#include "usart.h"
+
+/* ----------------------- Modbus includes ----------------------------------*/
+#include "mb.h"
+#include "mbport.h"
+
+/* ----------------------- static functions ---------------------------------*/
+static void prvvUARTTxReadyISR( void );
+static void prvvUARTRxISR( void );
+
+/* ----------------------- Start implementation -----------------------------*/
+void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
+{
+    if(xRxEnable)
+    {
+		// 如果使用了485控制芯片,那么在此处将485设置为接收模式
+		// 低电平  默认为接收模式	
+		// 查阅资料得知，进入发送完成中断以后，还要延时2-4ms等待串口数据完全发送出去才使能485接收，不然会导致最后一个字节发送不完
+		// 延时多久需要调整 9600波特率 5000 - 8000 , 9000后通信失效, 取中间值6500
+		// 延时多久需要调整 115200波特率 600 - 900, 1000后通信失效 , 取中间值750
+		//for( __IO uint32_t i=0;i<600;i++);
+		HAL_GPIO_WritePin(RS485_WR_GPIO_Port, RS485_WR_Pin, GPIO_PIN_RESET);
+			
+		__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);		// 使能接收非空中断 
+    }
+    else
+    {
+        __HAL_UART_DISABLE_IT(&huart2, UART_IT_RXNE);		// 禁能接收非空中断
+    }
+
+    if(xTxEnable)
+    {
+		// 如果使用了485控制芯片,那么在此处将485设置为发送模式
+		//  RS485_WR ENABLE 高电平  发送模式
+		HAL_GPIO_WritePin(RS485_WR_GPIO_Port, RS485_WR_Pin, GPIO_PIN_SET);
+		
+		__HAL_UART_ENABLE_IT(&huart2, UART_IT_TXE);			// 使能发送为空中断
+    }
+    else
+    {
+        __HAL_UART_DISABLE_IT(&huart2, UART_IT_TXE);		// 禁能发送为空中断
+    }
+}
+
+BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity eParity )
+{
+    huart2.Instance = USART2;
+    huart2.Init.BaudRate = ulBaudRate;
+    huart2.Init.StopBits = UART_STOPBITS_1;
+    huart2.Init.Mode = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+
+    switch(eParity)
+    {
+    // 奇校验
+    case MB_PAR_ODD:
+        huart2.Init.Parity = UART_PARITY_ODD;
+        huart2.Init.WordLength = UART_WORDLENGTH_9B;			// 带奇偶校验数据位为9bits
+        break;
+
+    // 偶校验
+    case MB_PAR_EVEN:
+        huart2.Init.Parity = UART_PARITY_EVEN;
+        huart2.Init.WordLength = UART_WORDLENGTH_9B;			// 带奇偶校验数据位为9bits
+        break;
+
+    // 无校验
+    default:
+        huart2.Init.Parity = UART_PARITY_NONE;
+        huart2.Init.WordLength = UART_WORDLENGTH_8B;			// 无奇偶校验数据位为8bits
+        break;
+    }
+    return HAL_UART_Init(&huart2) == HAL_OK ? TRUE : FALSE;
+}
+
+BOOL xMBPortSerialPutByte( CHAR ucByte )
+{
+    USART2->DR = ucByte;
+    return TRUE;
+}
+
+BOOL xMBPortSerialGetByte( CHAR * pucByte )
+{
+    *pucByte = (USART2->DR & (uint16_t)0x00FF);
+    return TRUE;
+}
+
+/* Create an interrupt handler for the transmit buffer empty interrupt
+ * (or an equivalent) for your target processor. This function should then
+ * call pxMBFrameCBTransmitterEmpty( ) which tells the protocol stack that
+ * a new character can be sent. The protocol stack will then call
+ * xMBPortSerialPutByte( ) to send the character.
+ */
+static void prvvUARTTxReadyISR( void )
+{
+    pxMBFrameCBTransmitterEmpty(  );
+}
+
+/* Create an interrupt handler for the receive interrupt for your target
+ * processor. This function should then call pxMBFrameCBByteReceived( ). The
+ * protocol stack will then call xMBPortSerialGetByte( ) to retrieve the
+ * character.
+ */
+static void prvvUARTRxISR( void )
+{
+    pxMBFrameCBByteReceived(  );
+}
+
+void USART2_IRQHandler(void)
+{
+    if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE))			// 接收非空中断标记被置位
+    {
+        __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_RXNE);		// 清除中断标记
+        prvvUARTRxISR();										// 通知modbus有数据到达
+    }
+
+    if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TXE) && 
+       __HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC))	// 发送为空中断标记被置位
+    {
+        __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_TXE);		// 清除中断标记
+        prvvUARTTxReadyISR();									// 通知modbus数据可以发送
+    }
+}
+
+```
+
 ### 设计自己的Modbus通信协议
 
 1. 地址
 - 从机地址：0x01(默认值)
-- ⼴播地址： 0x00
+- ⼴播地址：0x00
 
 2. 写单个保持寄存器指令
   | 功能码 | 设备名称 | 设备寄存器地址 | 控制的位    | 位说明       |
