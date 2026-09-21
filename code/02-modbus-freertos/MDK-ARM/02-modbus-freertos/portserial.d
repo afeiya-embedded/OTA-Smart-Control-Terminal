@@ -1,8 +1,8 @@
 02-modbus-freertos\portserial.o: ..\FreeModbus\portserial.c
 02-modbus-freertos\portserial.o: ..\FreeModbus\port.h
-02-modbus-freertos\portserial.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
-02-modbus-freertos\portserial.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
-02-modbus-freertos\portserial.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+02-modbus-freertos\portserial.o: E:\Keil\ARM\ARMCC\Bin\..\include\assert.h
+02-modbus-freertos\portserial.o: E:\Keil\ARM\ARMCC\Bin\..\include\inttypes.h
+02-modbus-freertos\portserial.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 02-modbus-freertos\portserial.o: ../Core/Inc/usart.h
 02-modbus-freertos\portserial.o: ../Core/Inc/main.h
 02-modbus-freertos\portserial.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
@@ -18,7 +18,7 @@
 02-modbus-freertos\portserial.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h
 02-modbus-freertos\portserial.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 02-modbus-freertos\portserial.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-02-modbus-freertos\portserial.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+02-modbus-freertos\portserial.o: E:\Keil\ARM\ARMCC\Bin\..\include\stddef.h
 02-modbus-freertos\portserial.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h
 02-modbus-freertos\portserial.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h
 02-modbus-freertos\portserial.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h

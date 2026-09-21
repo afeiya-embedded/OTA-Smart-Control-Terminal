@@ -1,7 +1,7 @@
 02-modbus-freertos\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
 02-modbus-freertos\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-02-modbus-freertos\croutine.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-02-modbus-freertos\croutine.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+02-modbus-freertos\croutine.o: E:\Keil\ARM\ARMCC\Bin\..\include\stddef.h
+02-modbus-freertos\croutine.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 02-modbus-freertos\croutine.o: ../Core/Inc/FreeRTOSConfig.h
 02-modbus-freertos\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 02-modbus-freertos\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

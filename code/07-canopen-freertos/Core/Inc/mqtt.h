@@ -5,7 +5,7 @@
 
 // 宏的值为1  , 使能WIFI 
 // 宏的值为0  , 使能4G
-#define  MQTT_WIFI_4G_ENABLE    0
+#define  MQTT_WIFI_4G_ENABLE    1
 
 
 

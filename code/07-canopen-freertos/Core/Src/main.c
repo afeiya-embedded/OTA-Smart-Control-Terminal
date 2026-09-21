@@ -125,7 +125,7 @@ int main(void)
 	//EEPROM_Test();
 	OLED_Init();
 	OLED_CLS(); // 清除屏幕显示
-	OLED_ShowStr(0,0, (unsigned char*)"CANopen Control", 2);	
+	//OLED_ShowStr(0,0, (unsigned char*)"CANopen Control", 2);	
 	AHT20_Init();
 	INA226_Init();
 	

@@ -118,28 +118,28 @@ void MX_GPIO_Init(void)
   */
 void LED_Control(uint8_t device,uint8_t cmd)
 {
-		if(device == LED1)
+	if(device == LED1)
+	{
+		if(cmd == ON ) // LED1 ON 
 		{
-				if(cmd == ON ) // LED1 ON 
-				{
-					HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); 
-				}
-				else if(cmd == OFF)  // LED1 OFF
-				{
-					HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); 
-				}
+			HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); 
 		}
-		else if(device == LED2)
+		else if(cmd == OFF)  // LED1 OFF
 		{
-				if(cmd == ON ) // LED2 ON 
-				{
-					HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); 
-				}
-				else if(cmd == OFF) // LED2 OFF
-				{
-					HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); 
-				}
+			HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); 
 		}
+	}
+	else if(device == LED2)
+	{
+		if(cmd == ON ) // LED2 ON 
+		{
+			HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); 
+		}
+		else if(cmd == OFF) // LED2 OFF
+		{
+			HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); 
+		}
+	}
 	
 }
 
@@ -152,12 +152,12 @@ void LED_Control(uint8_t device,uint8_t cmd)
   */
 void LED_Test(void)
 {
-		LED_Control(LED1,ON); 
-		LED_Control(LED2,OFF); 
-		HAL_Delay(500); 
-		LED_Control(LED1,OFF); 
-		LED_Control(LED2,ON); 
-		HAL_Delay(500); 
+	LED_Control(LED1,ON); 
+	LED_Control(LED2,OFF); 
+	HAL_Delay(500); 
+	LED_Control(LED1,OFF); 
+	LED_Control(LED2,ON); 
+	HAL_Delay(500); 
 }
 
 /**
@@ -173,14 +173,14 @@ void LED_Test(void)
 void BEEP_Control(uint8_t cmd)
 {
 
-			if(cmd == ON ) // BEEP ON 
-			{
-				HAL_GPIO_WritePin(BEEP_GPIO_Port, BEEP_Pin, GPIO_PIN_SET); 
-			}
-			else if(cmd == OFF)  // BEEP OFF
-			{
-				HAL_GPIO_WritePin(BEEP_GPIO_Port, BEEP_Pin, GPIO_PIN_RESET); 
-			}
+	if(cmd == ON ) // BEEP ON 
+	{
+		HAL_GPIO_WritePin(BEEP_GPIO_Port, BEEP_Pin, GPIO_PIN_SET); 
+	}
+	else if(cmd == OFF)  // BEEP OFF
+	{
+		HAL_GPIO_WritePin(BEEP_GPIO_Port, BEEP_Pin, GPIO_PIN_RESET); 
+	}
 }
 
 /**
@@ -192,10 +192,10 @@ void BEEP_Control(uint8_t cmd)
   */
 void BEEP_Test(void)
 {
-		BEEP_Control(ON); 
-		HAL_Delay(200); 
-		BEEP_Control(OFF); 
-		HAL_Delay(800); 
+	BEEP_Control(ON); 
+	HAL_Delay(200); 
+	BEEP_Control(OFF); 
+	HAL_Delay(800); 
 }
 
 
@@ -212,14 +212,14 @@ void BEEP_Test(void)
 void RELAY_Control(uint8_t cmd)
 {
 
-			if(cmd == ON ) // RELAY ON 
-			{
-				HAL_GPIO_WritePin(RELAY_GPIO_Port, RELAY_Pin, GPIO_PIN_SET); 
-			}
-			else if(cmd == OFF)  // RELAY OFF
-			{
-				HAL_GPIO_WritePin(RELAY_GPIO_Port, RELAY_Pin, GPIO_PIN_RESET); 
-			}
+	if(cmd == ON ) // RELAY ON 
+	{
+		HAL_GPIO_WritePin(RELAY_GPIO_Port, RELAY_Pin, GPIO_PIN_SET); 
+	}
+	else if(cmd == OFF)  // RELAY OFF
+	{
+		HAL_GPIO_WritePin(RELAY_GPIO_Port, RELAY_Pin, GPIO_PIN_RESET); 
+	}
 }
 
 /**
@@ -231,10 +231,10 @@ void RELAY_Control(uint8_t cmd)
   */
 void RELAY_Test(void)
 {
-		RELAY_Control(ON); 
-		HAL_Delay(1000); 
-		RELAY_Control(OFF); 
-		HAL_Delay(1000); 
+	RELAY_Control(ON); 
+	HAL_Delay(1000); 
+	RELAY_Control(OFF); 
+	HAL_Delay(1000); 
 }
 
 

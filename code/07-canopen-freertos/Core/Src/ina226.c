@@ -75,18 +75,18 @@ uint16_t INA226_Read_Pow(void)
  */
 void INA226_Read(void)
 {
-		uint16_t Current_Original = INA226_Read_Current();   // 读取电流
-		uint16_t Voltage_Original = INA226_Read_Bus_Voltage(); // 读取电压
-		uint16_t Pow_Original     = INA226_Read_Pow(); // 读取功率
+	uint16_t Current_Original = INA226_Read_Current();   // 读取电流
+	uint16_t Voltage_Original = INA226_Read_Bus_Voltage(); // 读取电压
+	uint16_t Pow_Original     = INA226_Read_Pow(); // 读取功率
 
-		float Current = Current_Register_LSB * Current_Original;
-		float Voltage = (Bus_Voltage_Register_LSB * Voltage_Original) / 1000.0 ;
-		float Pow     = Power_Register_LSB * Pow_Original;
-		
-		REG_HOLD_BUF[3] = Voltage * 100 ;  
-		REG_HOLD_BUF[4] = Current  ;
-		REG_HOLD_BUF[5] = Pow ;
-		
+	float Current = Current_Register_LSB * Current_Original;
+	float Voltage = (Bus_Voltage_Register_LSB * Voltage_Original) / 1000.0 ;
+	float Pow     = Power_Register_LSB * Pow_Original;
+	
+	REG_HOLD_BUF[3] = Voltage * 100 ;  
+	REG_HOLD_BUF[4] = Current  ;
+	REG_HOLD_BUF[5] = Pow ;
+	
 //		printf("Current:%.0f mA\n",Current);
 //		printf("Voltage:%.3f V\n",Voltage);
 //		printf("Pow    :%.0f mW\n",Pow);

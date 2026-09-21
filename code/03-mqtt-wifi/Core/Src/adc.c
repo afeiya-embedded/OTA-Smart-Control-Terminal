@@ -122,171 +122,171 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 /* USER CODE BEGIN 1 */
 void ADC_VR_Test(void)
 {
-		uint8_t str[32]={0};
-		OLED_ShowStr(16,0, (unsigned char*)"ADC VR Test", 2);	
-		uint32_t adc_value = 0 ; 
-		for(uint8_t i=0;i<10;i++)
+	uint8_t str[32]={0};
+	OLED_ShowStr(16,0, (unsigned char*)"ADC VR Test", 2);	
+	uint32_t adc_value = 0 ; 
+	for(uint8_t i=0;i<10;i++)
+	{
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
 		{
-            HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-            if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
-            {
-                    adc_value += HAL_ADC_GetValue(&hadc1) ; 
-            }
+				adc_value += HAL_ADC_GetValue(&hadc1) ; 
 		}
-		adc_value = adc_value /10 ;  // 10次求平均 
-							
-		// 0         ----- 0  v 
-		// 4095      ----- 3.3v
-		// adc_value ----- val  v 
-		float val = (adc_value*3.3/4095); 
-		printf("VR : %.2fV\n",val);
-		sprintf((char * )str,"VR : %.2fV",val);
-		OLED_ShowStr(0,4,(unsigned char *)str,2);     //测试6*16字符	
-		HAL_Delay(1000);
+	}
+	adc_value = adc_value /10 ;  // 10次求平均 
+						
+	// 0         ----- 0  v 
+	// 4095      ----- 3.3v
+	// adc_value ----- val  v 
+	float val = (adc_value*3.3/4095); 
+	printf("VR : %.2fV\n",val);
+	sprintf((char * )str,"VR : %.2fV",val);
+	OLED_ShowStr(0,4,(unsigned char *)str,2);     //测试6*16字符	
+	HAL_Delay(1000);
 
 }
 
 void ADC_CPU_Test(void)
 {
-		uint8_t str[32]={0};
-		OLED_ShowStr(16,0, (unsigned char*)"ADC CPU Test", 2);	
-		uint32_t adc_value = 0 ; 
-		for(uint8_t i=0;i<10;i++)
+	uint8_t str[32]={0};
+	OLED_ShowStr(16,0, (unsigned char*)"ADC CPU Test", 2);	
+	uint32_t adc_value = 0 ; 
+	for(uint8_t i=0;i<10;i++)
+	{
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
 		{
-				HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-				if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
-				{
-						adc_value += HAL_ADC_GetValue(&hadc1) ; 
-				}
-		
+				adc_value += HAL_ADC_GetValue(&hadc1) ; 
 		}
-		adc_value = adc_value /10 ;  // 10次求平均 
-							
-		// 0         -----0  v 
-		// 4096      -----3.3v
-		// adc_value -----val  v 
-		float val=(1.43-adc_value*3.3/4095)/0.0043+25;
-		printf("CPU : %.1f C\n",val);
-		sprintf((char * )str,"CPU : %.1f C",val);
-		OLED_ShowStr(0,5,(unsigned char *)str,2); 
-		HAL_Delay(1000);
+	
+	}
+	adc_value = adc_value /10 ;  // 10次求平均 
+						
+	// 0         -----0  v 
+	// 4096      -----3.3v
+	// adc_value -----val  v 
+	float val=(1.43-adc_value*3.3/4095)/0.0043+25;
+	printf("CPU : %.1f C\n",val);
+	sprintf((char * )str,"CPU : %.1f C",val);
+	OLED_ShowStr(0,5,(unsigned char *)str,2); 
+	HAL_Delay(1000);
 
 }
 
 void ADC_VR_CPU_Test(void)
 {
-		uint8_t str[32]={0};
-		OLED_ShowStr(16,0, (unsigned char*)"ADC VRCPU Test", 2);	
-		uint32_t adc_value = 0 ;
-		ADC_ChannelConfTypeDef sConfig = {0};
-		sConfig.Channel = ADC_CHANNEL_1;
-		sConfig.Rank = ADC_REGULAR_RANK_1;
-		sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
-		if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-		{
-			Error_Handler();
-		}
-		
-		for(uint8_t i=0;i<10;i++)
-		{
-				HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-				if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
-				{
-						adc_value += HAL_ADC_GetValue(&hadc1) ; 
-				}
-		}
-		adc_value = adc_value /10 ;  // 10次求平均 
-							
-		// 0         ----- 0  v 
-		// 4095      ----- 3.3v
-		// adc_value ----- val  v 
-		float val = (adc_value*3.3/4095); 
-		printf("VR : %.2fV\n",val);
-		sprintf((char * )str,"VR : %.2fV",val);
-		OLED_ShowStr(0,3,(unsigned char *)str,2);     //测试8*16字符			
-		
-		adc_value = 0 ;  // 清空 adc_value 的值
-		sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
-		sConfig.Rank = ADC_REGULAR_RANK_1;
-		sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
-		if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-		{
-			Error_Handler();
-		}
-		for(uint8_t i=0;i<10;i++)
-		{
-				HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-				if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
-				{
-						adc_value += HAL_ADC_GetValue(&hadc1) ; 
-				}
-		
-		}
-		adc_value = adc_value /10 ;  // 10次求平均 
-							
-		// 0         -----0  v 
-		// 4096      -----3.3v
-		// adc_value -----val  v 
-		val=(1.43-adc_value*3.3/4095)/0.0043+25;
-		printf("CPU : %.1f C\n",val);
-		sprintf((char * )str,"CPU : %.1f C",val);
-		OLED_ShowStr(0,5,(unsigned char *)str,2); 
-		HAL_Delay(1000);
+	uint8_t str[32]={0};
+	OLED_ShowStr(16,0, (unsigned char*)"ADC VRCPU Test", 2);	
+	uint32_t adc_value = 0 ;
+	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Channel = ADC_CHANNEL_1;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	
+	for(uint8_t i=0;i<10;i++)
+	{
+			HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+			if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
+			{
+					adc_value += HAL_ADC_GetValue(&hadc1) ; 
+			}
+	}
+	adc_value = adc_value /10 ;  // 10次求平均 
+						
+	// 0         ----- 0  v 
+	// 4095      ----- 3.3v
+	// adc_value ----- val  v 
+	float val = (adc_value*3.3/4095); 
+	printf("VR : %.2fV\n",val);
+	sprintf((char * )str,"VR : %.2fV",val);
+	OLED_ShowStr(0,3,(unsigned char *)str,2);     //测试8*16字符			
+	
+	adc_value = 0 ;  // 清空 adc_value 的值
+	sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	for(uint8_t i=0;i<10;i++)
+	{
+			HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+			if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
+			{
+					adc_value += HAL_ADC_GetValue(&hadc1) ; 
+			}
+	
+	}
+	adc_value = adc_value /10 ;  // 10次求平均 
+						
+	// 0         -----0  v 
+	// 4096      -----3.3v
+	// adc_value -----val  v 
+	val=(1.43-adc_value*3.3/4095)/0.0043+25;
+	printf("CPU : %.1f C\n",val);
+	sprintf((char * )str,"CPU : %.1f C",val);
+	OLED_ShowStr(0,5,(unsigned char *)str,2); 
+	HAL_Delay(1000);
 
 }
 
 void ADC_VR_CPU_Read(void)
 {
-		uint32_t adc_value = 0 ;
-		ADC_ChannelConfTypeDef sConfig = {0};
-		sConfig.Channel = ADC_CHANNEL_1;
-		sConfig.Rank = ADC_REGULAR_RANK_1;
-		sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
-		if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+	uint32_t adc_value = 0 ;
+	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Channel = ADC_CHANNEL_1;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	
+	for(uint8_t i=0;i<10;i++)
+	{
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
 		{
-			Error_Handler();
+				adc_value += HAL_ADC_GetValue(&hadc1) ; 
 		}
-		
-		for(uint8_t i=0;i<10;i++)
+	}
+	adc_value = adc_value /10 ;  // 10次求平均 
+						
+	// 0         ----- 0  v 
+	// 4095      ----- 3.3v
+	// adc_value ----- val  v 
+	float val = (adc_value*3.3/4095); 
+	REG_HOLD_BUF[6] = val * 100 ;  
+	
+	adc_value = 0 ;  // 清空 adc_value 的值
+	sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	for(uint8_t i=0;i<10;i++)
+	{
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
 		{
-				HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-				if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
-				{
-						adc_value += HAL_ADC_GetValue(&hadc1) ; 
-				}
+				adc_value += HAL_ADC_GetValue(&hadc1) ; 
 		}
-		adc_value = adc_value /10 ;  // 10次求平均 
-							
-		// 0         ----- 0  v 
-		// 4095      ----- 3.3v
-		// adc_value ----- val  v 
-		float val = (adc_value*3.3/4095); 
-		REG_HOLD_BUF[6] = val * 100 ;  
-		
-		adc_value = 0 ;  // 清空 adc_value 的值
-		sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
-		sConfig.Rank = ADC_REGULAR_RANK_1;
-		sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
-		if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-		{
-			Error_Handler();
-		}
-		for(uint8_t i=0;i<10;i++)
-		{
-				HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-				if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
-				{
-						adc_value += HAL_ADC_GetValue(&hadc1) ; 
-				}
-		
-		}
-		adc_value = adc_value /10 ;  // 10次求平均 
-							
-		// 0         -----0  v 
-		// 4096      -----3.3v
-		// adc_value -----val  v 
-		val=(1.43-adc_value*3.3/4095)/0.0043+25;
-		REG_HOLD_BUF[7] = val * 100 ;  
+	
+	}
+	adc_value = adc_value /10 ;  // 10次求平均 
+						
+	// 0         -----0  v 
+	// 4096      -----3.3v
+	// adc_value -----val  v 
+	val=(1.43-adc_value*3.3/4095)/0.0043+25;
+	REG_HOLD_BUF[7] = val * 100 ;  
 
 }
 

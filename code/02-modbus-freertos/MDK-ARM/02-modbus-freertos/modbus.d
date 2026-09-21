@@ -8,14 +8,14 @@
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Include/core_cm3.h
-02-modbus-freertos\modbus.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+02-modbus-freertos\modbus.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Include/cmsis_version.h
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 02-modbus-freertos\modbus.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-02-modbus-freertos\modbus.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+02-modbus-freertos\modbus.o: E:\Keil\ARM\ARMCC\Bin\..\include\stddef.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h
@@ -32,7 +32,7 @@
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 02-modbus-freertos\modbus.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
-02-modbus-freertos\modbus.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+02-modbus-freertos\modbus.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdio.h
 02-modbus-freertos\modbus.o: ../Core/Inc/gpio.h
 02-modbus-freertos\modbus.o: ../Core/Inc/aht20.h
 02-modbus-freertos\modbus.o: ../Core/Inc/ina226.h
@@ -41,7 +41,7 @@
 02-modbus-freertos\modbus.o: ../Core/Inc/adc.h
 02-modbus-freertos\modbus.o: ../FreeModbus/mb.h
 02-modbus-freertos\modbus.o: ../FreeModbus/port.h
-02-modbus-freertos\modbus.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
-02-modbus-freertos\modbus.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+02-modbus-freertos\modbus.o: E:\Keil\ARM\ARMCC\Bin\..\include\assert.h
+02-modbus-freertos\modbus.o: E:\Keil\ARM\ARMCC\Bin\..\include\inttypes.h
 02-modbus-freertos\modbus.o: ../FreeModbus/mbport.h
 02-modbus-freertos\modbus.o: ../FreeModbus/mbproto.h

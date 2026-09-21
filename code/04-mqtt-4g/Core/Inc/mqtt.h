@@ -8,9 +8,7 @@
 #define  MQTT_WIFI_4G_ENABLE    0
 
 
-
-
-extern  __IO uint8_t MQTT_UPLoad_Flag  ; // 数据上传服务器标志位， 每隔5秒上传1次
+extern  __IO uint8_t MQTT_UpLoad_Flag  ; // 数据上传服务器标志位， 每隔5秒上传1次
 extern  __IO uint8_t MQTT_Download_Flag ;  // 开始接收服务器下发的命令，开始解析的标志位
 uint8_t ESP8266_Connect_MQTTServer(void);
 uint8_t MQTT_SendData(void);

@@ -40,12 +40,11 @@ BOOL xMBPortTimersInit( USHORT usTim1Timerout50us )
     htim3.Instance = TIM3;
 	// 72M/ (7199+1) = 10KHz 
 	// 定时器工作一次的时间为 100us 
-	
-		// 72M/ (3599+1) = 20KHz 
+	// 72M/ (3599+1) = 20KHz 
 	// 定时器工作一次的时间为 50us 
 		
     htim3.Init.Prescaler = 3599;								  // 50us 记一次数
-	//  htim3.Init.Prescaler = 7199;								// 100us记一次数
+	//  htim3.Init.Prescaler = 7199;							// 100us记一次数
     htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim3.Init.Period = usTim1Timerout50us - 1;		// usTim1Timerout50us * 50即为定时器溢出时间
     htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -67,14 +66,14 @@ BOOL xMBPortTimersInit( USHORT usTim1Timerout50us )
     }
 
 	__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);      // 先清除一下定时器的中断标记,防止使能中断后直接触发中断
-    __HAL_TIM_ENABLE_IT(&htim3, TIM_IT_UPDATE);					// 使能定时器更新中断
+    __HAL_TIM_ENABLE_IT(&htim3, TIM_IT_UPDATE);			// 使能定时器更新中断
     return TRUE;
 }
 
 inline void vMBPortTimersEnable(  )
 {
     __HAL_TIM_SET_COUNTER(&htim3, 0);		// 清空计数器
-    __HAL_TIM_ENABLE(&htim3);						// 使能定时器
+    __HAL_TIM_ENABLE(&htim3);				// 使能定时器
 }
 
 inline void vMBPortTimersDisable(  )

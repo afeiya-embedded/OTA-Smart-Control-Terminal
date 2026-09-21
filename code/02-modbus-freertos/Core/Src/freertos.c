@@ -122,14 +122,14 @@ void MX_FREERTOS_Init(void) {
 void ModbusTask(void const * argument)
 {
   /* USER CODE BEGIN ModbusTask */
-		Modbus_Init();
-
+	Modbus_Init();
+	
   /* Infinite loop */
   for(;;)
   {
-			eMBPoll();// 轮训查询	
-			Modbus_Parse(); 
-			osDelay(10);
+	eMBPoll();// 轮训查询	
+	Modbus_Parse(); 
+	osDelay(10);
   }
   /* USER CODE END ModbusTask */
 }

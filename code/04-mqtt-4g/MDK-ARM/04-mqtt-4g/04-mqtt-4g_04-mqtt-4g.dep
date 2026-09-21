@@ -142,8 +142,8 @@ I (E:\Keil\ARM\ARMCC\include\assert.h)(0x588B8344)
 I (E:\Keil\ARM\ARMCC\include\inttypes.h)(0x588B8344)
 I (../FreeModbus/mbport.h)(0x5B9AC2A6)
 I (../FreeModbus/mbproto.h)(0x68CBA927)
-F (..\Core\Src\mqtt.c)(0x68D25D37)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\mqtt.o --omf_browse 04-mqtt-4g\mqtt.crf --depend 04-mqtt-4g\mqtt.d)
-I (../Core/Inc/mqtt.h)(0x68D23D5C)
+F (..\Core\Src\mqtt.c)(0x6AB098BA)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\mqtt.o --omf_browse 04-mqtt-4g\mqtt.crf --depend 04-mqtt-4g\mqtt.d)
+I (../Core/Inc/mqtt.h)(0x6AB098BA)
 I (../Core/Inc/main.h)(0x68D100EE)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x6873B7F3)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x68D0EB61)
@@ -266,8 +266,8 @@ I (../Core/Inc/fifo.h)(0x66D91D8C)
 I (../Core/Inc/usart.h)(0x68D0EBEB)
 I (../Core/Inc/oled.h)(0x68B6AD14)
 I (../Core/Inc/gpio.h)(0x68B804AB)
-I (../Core/Inc/mqtt.h)(0x68D23D5C)
-F (../Core/Src/main.c)(0x68D8E7D9)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\main.o --omf_browse 04-mqtt-4g\main.crf --depend 04-mqtt-4g\main.d)
+I (../Core/Inc/mqtt.h)(0x6AB098BA)
+F (../Core/Src/main.c)(0x6AB098BA)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\main.o --omf_browse 04-mqtt-4g\main.crf --depend 04-mqtt-4g\main.d)
 I (../Core/Inc/main.h)(0x68D100EE)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x6873B7F3)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x68D0EB61)
@@ -323,7 +323,7 @@ I (../Core/Inc/wifi4g.h)(0x66D80E3C)
 I (../Core/Inc/fifo.h)(0x66D91D8C)
 I (E:\Keil\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 I (E:\Keil\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../Core/Inc/mqtt.h)(0x68D23D5C)
+I (../Core/Inc/mqtt.h)(0x6AB098BA)
 F (../Core/Src/gpio.c)(0x68C91772)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\gpio.o --omf_browse 04-mqtt-4g\gpio.crf --depend 04-mqtt-4g\gpio.d)
 I (../Core/Inc/gpio.h)(0x68B804AB)
 I (../Core/Inc/main.h)(0x68D100EE)
@@ -578,7 +578,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h)(0x6873B7F3)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h)(0x6873B7F3)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x6873B7F3)
 I (E:\Keil\ARM\ARMCC\include\stdio.h)(0x588B8344)
-F (../Core/Src/stm32f1xx_it.c)(0x68D2568F)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\stm32f1xx_it.o --omf_browse 04-mqtt-4g\stm32f1xx_it.crf --depend 04-mqtt-4g\stm32f1xx_it.d)
+F (../Core/Src/stm32f1xx_it.c)(0x6AB098BA)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\stm32f1xx_it.o --omf_browse 04-mqtt-4g\stm32f1xx_it.crf --depend 04-mqtt-4g\stm32f1xx_it.d)
 I (../Core/Inc/main.h)(0x68D100EE)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x6873B7F3)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x68D0EB61)
@@ -621,7 +621,7 @@ I (../Core/Inc/fifo.h)(0x66D91D8C)
 I (E:\Keil\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 I (E:\Keil\ARM\ARMCC\include\string.h)(0x588B8344)
 I (../Core/Inc/wifi4g.h)(0x66D80E3C)
-I (../Core/Inc/mqtt.h)(0x68D23D5C)
+I (../Core/Inc/mqtt.h)(0x6AB098BA)
 F (../Core/Src/stm32f1xx_hal_msp.c)(0x68B01A95)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../FreeModbus-I.\RTE\_04-mqtt-4g-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o 04-mqtt-4g\stm32f1xx_hal_msp.o --omf_browse 04-mqtt-4g\stm32f1xx_hal_msp.crf --depend 04-mqtt-4g\stm32f1xx_hal_msp.d)
 I (../Core/Inc/main.h)(0x68D100EE)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x6873B7F3)

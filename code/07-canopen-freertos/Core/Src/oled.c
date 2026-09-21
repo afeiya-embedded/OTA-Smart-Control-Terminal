@@ -4,12 +4,6 @@
 * Processor: STM32F103C8T6
 * Compiler : MDK fo ARM
 * 
-* Author : yangshengli
-* Version: 2.00
-* Date   : 2022.12.27
-* Email  : iot1991@qq.com
-* Modification: none
-* 
 * Description:128*64点阵的OLED显示屏驱动文件，SSD1306驱动IIC通信方式显示屏
 *
 * Others: none;

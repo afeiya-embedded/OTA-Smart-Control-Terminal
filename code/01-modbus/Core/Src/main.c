@@ -104,8 +104,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  printf("Uart1 init is ok\n");
-  printf("Modbus Test\n");  
+//  printf("Uart1 init is ok\n");
+//  printf("Modbus Test\n");  
   //EEPROM_Test();
   OLED_Init();
   OLED_CLS(); // 清除屏幕显示

@@ -372,23 +372,23 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 // DMA 接收到一半的中断 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
-		if(huart->Instance == USART1)
-		{
-			uint8_t Length  =  DMA_BUF_SIZE/2 - RX1_Offset ; 
-			//printf("HLength=%d\n",Length);
-			HAL_UART_Transmit(&huart3,RX1_Buf+RX1_Offset,Length,HAL_MAX_DELAY); 		
-			RX1_Offset += Length; 		
+	if(huart->Instance == USART1)
+	{
+		uint8_t Length  =  DMA_BUF_SIZE/2 - RX1_Offset ; 
+		//printf("HLength=%d\n",Length);
+		HAL_UART_Transmit(&huart3,RX1_Buf+RX1_Offset,Length,HAL_MAX_DELAY); 		
+		RX1_Offset += Length; 		
+	}
+	else if(huart->Instance == USART3)
+	{
+		uint8_t Length  =  DMA_BUF_SIZE/2 - RX3_Offset ; 
+		//printf("HLength=%d\n",Length);
+		
+		if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0){
+				printf("FIFO Full\n");
 		}
-		else if(huart->Instance == USART3)
-		{
-			uint8_t Length  =  DMA_BUF_SIZE/2 - RX3_Offset ; 
-			//printf("HLength=%d\n",Length);
-			
-			if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0){
-					printf("FIFO Full\n");
-			}
-			RX3_Offset += Length; 
-		}
+		RX3_Offset += Length; 
+	}
 }
 
 // DMA传输完成中断   , 就是接收满了的时候 触发中断

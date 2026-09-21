@@ -143,8 +143,8 @@ void ModbusTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-		eMBPoll();// 轮训查询	
-		Modbus_Parse(); 
+	eMBPoll();// 轮训查询	
+	Modbus_Parse(); 
     osDelay(10);
   }
   /* USER CODE END ModbusTask */
@@ -164,9 +164,8 @@ void MQTTTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-
-		MQTT_SendData();
-    osDelay(5000);
+	MQTT_SendData();
+    osDelay(2000);
   }
   /* USER CODE END MQTTTask */
 }

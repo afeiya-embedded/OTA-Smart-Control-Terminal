@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,16 +51,16 @@ uint8_t WIFI4G_Parse_Queue(sequeue_t *sq)
 	// 使用 "{" 对接收的数据进行分割， 分割后可以提取出json字符串
 	if(MQTT_Download_Flag) // 连接到服务器后开始解析数据
 	{
-				if( memcmp(RecvBuf,"AT+MQTTPUB",strlen("AT+MQTTPUB")) != 0) // 数据回显，防止数据错误解析
-				{
-							char * leftp  = strstr((char *)RecvBuf,"{"); // 找到左花括号
-							if(leftp != NULL)
-							{
-									//printf("leftp=%s\n",leftp);
-									MQTT_Parse_JsonData((uint8_t*)leftp);// 解析json字符串并控制设备
-									//printf("JSon_Buf=%s\n",JSon_Buf);
-							}
-				}
+		if( memcmp(RecvBuf,"AT+MQTTPUB",strlen("AT+MQTTPUB")) != 0) // 数据回显，防止数据错误解析
+		{
+			char * leftp  = strstr((char *)RecvBuf,"{"); // 找到左花括号
+			if(leftp != NULL)
+			{
+				//printf("leftp=%s\n",leftp);
+				MQTT_Parse_JsonData((uint8_t*)leftp);// 解析json字符串并控制设备
+				//printf("JSon_Buf=%s\n",JSon_Buf);
+			}
+		}
 
 	}
 	

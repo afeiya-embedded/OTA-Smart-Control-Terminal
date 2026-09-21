@@ -1,9 +1,9 @@
 02-modbus-freertos\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
-02-modbus-freertos\queue.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-02-modbus-freertos\queue.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+02-modbus-freertos\queue.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdlib.h
+02-modbus-freertos\queue.o: E:\Keil\ARM\ARMCC\Bin\..\include\string.h
 02-modbus-freertos\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-02-modbus-freertos\queue.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-02-modbus-freertos\queue.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+02-modbus-freertos\queue.o: E:\Keil\ARM\ARMCC\Bin\..\include\stddef.h
+02-modbus-freertos\queue.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 02-modbus-freertos\queue.o: ../Core/Inc/FreeRTOSConfig.h
 02-modbus-freertos\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 02-modbus-freertos\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

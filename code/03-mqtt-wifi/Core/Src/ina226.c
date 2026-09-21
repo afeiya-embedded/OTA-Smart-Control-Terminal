@@ -75,27 +75,27 @@ uint16_t INA226_Read_Pow(void)
  */
 void INA226_Test(void)
 {
-		//printf("INA226 Test\n");
-		uint8_t str[64];
-		OLED_ShowStr(16,0, (unsigned char*)"INA226 Test", 2);	
-		uint16_t Current_Original = INA226_Read_Current();   // 读取电流
-		uint16_t Voltage_Original = INA226_Read_Bus_Voltage(); // 读取电压
-		uint16_t Pow_Original     = INA226_Read_Pow(); // 读取功率
+	//printf("INA226 Test\n");
+	uint8_t str[64];
+	OLED_ShowStr(16,0, (unsigned char*)"INA226 Test", 2);	
+	uint16_t Current_Original = INA226_Read_Current();   // 读取电流
+	uint16_t Voltage_Original = INA226_Read_Bus_Voltage(); // 读取电压
+	uint16_t Pow_Original     = INA226_Read_Pow(); // 读取功率
 
-		float Current = Current_Register_LSB * Current_Original;
-		float Voltage = (Bus_Voltage_Register_LSB * Voltage_Original) / 1000.0;
-		float Pow     = Power_Register_LSB * Pow_Original;
-		printf("Current:%.0f mA\n",Current);
-		printf("Voltage:%.3f V\n",Voltage);
-		printf("Pow    :%.0f mW\n",Pow);
-	
-		sprintf((char *)str,"Current:%.0f mA",Current);
-		OLED_ShowStr(0,2, (unsigned char*)str, 2);	
-		sprintf((char *)str,"Voltage:%.3f V",Voltage);
-		OLED_ShowStr(0,4, (unsigned char*)str, 2);
-		sprintf((char *)str,"Pow    :%.0f mW",Pow);
-		OLED_ShowStr(0,6, (unsigned char*)str, 2);
-		HAL_Delay(1000);
+	float Current = Current_Register_LSB * Current_Original;
+	float Voltage = (Bus_Voltage_Register_LSB * Voltage_Original) / 1000.0;
+	float Pow     = Power_Register_LSB * Pow_Original;
+	printf("Current:%.0f mA\n",Current);
+	printf("Voltage:%.3f V\n",Voltage);
+	printf("Pow    :%.0f mW\n",Pow);
+
+	sprintf((char *)str,"Current:%.0f mA",Current);
+	OLED_ShowStr(0,2, (unsigned char*)str, 2);	
+	sprintf((char *)str,"Voltage:%.3f V",Voltage);
+	OLED_ShowStr(0,4, (unsigned char*)str, 2);
+	sprintf((char *)str,"Pow    :%.0f mW",Pow);
+	OLED_ShowStr(0,6, (unsigned char*)str, 2);
+	HAL_Delay(1000);
 }
 
 /**
@@ -105,18 +105,20 @@ void INA226_Test(void)
  */
 void INA226_Read(void)
 {
-		uint16_t Current_Original = INA226_Read_Current();   // 读取电流
-		uint16_t Voltage_Original = INA226_Read_Bus_Voltage(); // 读取电压
-		uint16_t Pow_Original     = INA226_Read_Pow(); // 读取功率
+	uint16_t Current_Original = INA226_Read_Current();   // 读取电流
+	uint16_t Voltage_Original = INA226_Read_Bus_Voltage(); // 读取电压
+	uint16_t Pow_Original     = INA226_Read_Pow(); // 读取功率
 
-		float Current = Current_Register_LSB * Current_Original;
-		float Voltage = (Bus_Voltage_Register_LSB * Voltage_Original) / 1000.0 ;
-		float Pow     = Power_Register_LSB * Pow_Original;
-		
-		REG_HOLD_BUF[3] = Voltage * 100 ;  
-		REG_HOLD_BUF[4] = Current  ;
-		REG_HOLD_BUF[5] = Pow ;
-		
+	float Current = Current_Register_LSB * Current_Original;
+	float Voltage = (Bus_Voltage_Register_LSB * Voltage_Original) / 1000.0 ;
+	float Pow     = Power_Register_LSB * Pow_Original;
+	
+	
+	//数据存入Modbus 十路寄存器中
+	REG_HOLD_BUF[3] = Voltage * 100 ; // Voltage默认获取数据 mV
+	REG_HOLD_BUF[4] = Current  ;
+	REG_HOLD_BUF[5] = Pow ;
+	
 //		printf("Current:%.0f mA\n",Current);
 //		printf("Voltage:%.3f V\n",Voltage);
 //		printf("Pow    :%.0f mW\n",Pow);

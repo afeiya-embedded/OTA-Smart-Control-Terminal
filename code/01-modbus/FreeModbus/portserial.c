@@ -35,18 +35,15 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 {
     if(xRxEnable)
     {
-			//
-			// 如果使用了485控制芯片,那么在此处将485设置为接收模式
-			//
-			// 低电平  默认为接收模式	
-			// 查阅资料得知，进入发送完成中断以后，还要延时2-4ms等待串口数据完全发送出去才使能485接收，不然会导致最后一个字节发送不完
-			// 延时多久需要调整 9600波特率 5000 - 8000 , 9000后通信失效, 取中间值6500
-			// 延时多久需要调整 115200波特率 600 - 900, 1000后通信失效 , 取中间值750
-			//for( __IO uint32_t i=0;i<600;i++);
-			HAL_GPIO_WritePin(RS485_WR_GPIO_Port, RS485_WR_Pin, GPIO_PIN_RESET);
+		// 如果使用了485控制芯片,那么在此处将485设置为接收模式
+		// 低电平  默认为接收模式	
+		// 查阅资料得知，进入发送完成中断以后，还要延时2-4ms等待串口数据完全发送出去才使能485接收，不然会导致最后一个字节发送不完
+		// 延时多久需要调整 9600波特率 5000 - 8000 , 9000后通信失效, 取中间值6500
+		// 延时多久需要调整 115200波特率 600 - 900, 1000后通信失效 , 取中间值750
+		//for( __IO uint32_t i=0;i<600;i++);
+		HAL_GPIO_WritePin(RS485_WR_GPIO_Port, RS485_WR_Pin, GPIO_PIN_RESET);
 			
-			__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);		// 使能接收非空中断
-        
+		__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);		// 使能接收非空中断 
     }
     else
     {
@@ -55,14 +52,11 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 
     if(xTxEnable)
     {
-			
-			
-			// 如果使用了485控制芯片,那么在此处将485设置为发送模式
-			//  RS485_WR ENABLE 高电平  发送模式
-			HAL_GPIO_WritePin(RS485_WR_GPIO_Port, RS485_WR_Pin, GPIO_PIN_SET);
-			
-			__HAL_UART_ENABLE_IT(&huart2, UART_IT_TXE);			// 使能发送为空中断
-        
+		// 如果使用了485控制芯片,那么在此处将485设置为发送模式
+		//  RS485_WR ENABLE 高电平  发送模式
+		HAL_GPIO_WritePin(RS485_WR_GPIO_Port, RS485_WR_Pin, GPIO_PIN_SET);
+		
+		__HAL_UART_ENABLE_IT(&huart2, UART_IT_TXE);			// 使能发送为空中断
     }
     else
     {

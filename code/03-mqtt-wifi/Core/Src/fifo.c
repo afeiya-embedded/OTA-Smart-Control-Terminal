@@ -10,7 +10,8 @@
  * 满队 队尾+1 == 队头 ,数组空了一个元素, 因此满队比数组少一个元素
  */
 
-sequeue_t QUART3; // 单片机中尽量不使用malloc函数,
+sequeue_t QUART3; // 单片机中尽量不使用malloc函数
+
 int8_t Queue_Init(sequeue_t *q)
 {
     q->front = q->rear = NSize - 1; // 指向数组的最后一个元素 , 原因入队队尾加, 出队队头加
@@ -51,7 +52,7 @@ int8_t Enqueue(sequeue_t *q, uint8_t value)
         printf("queue is full\n");
         return -1;
     }
-    q->rear = (q->rear + 1) % NSize; // 数组下标的移动范围 0 到N-1
+    q->rear = (q->rear + 1) % NSize; // 头插法 数组下标的移动范围 0 到N-1
     q->data[q->rear] = value;
     return 0;
 }

@@ -58,7 +58,7 @@ void AHT20_Init(void)
 void AHT20_ReadData(void) 
 {
 	volatile uint8_t Byte_1th=0,Byte_2th=0,Byte_3th=0;
-  volatile uint8_t Byte_4th=0,Byte_5th=0,Byte_6th=0;
+    volatile uint8_t Byte_4th=0,Byte_5th=0,Byte_6th=0;
 	uint32_t RetuData = 0;
 	uint16_t cnt = 0;
 	uint8_t tmp[6];

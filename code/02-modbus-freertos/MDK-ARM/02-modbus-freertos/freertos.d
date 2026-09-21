@@ -1,7 +1,7 @@
 02-modbus-freertos\freertos.o: ../Core/Src/freertos.c
 02-modbus-freertos\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-02-modbus-freertos\freertos.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-02-modbus-freertos\freertos.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+02-modbus-freertos\freertos.o: E:\Keil\ARM\ARMCC\Bin\..\include\stddef.h
+02-modbus-freertos\freertos.o: E:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 02-modbus-freertos\freertos.o: ../Core/Inc/FreeRTOSConfig.h
 02-modbus-freertos\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 02-modbus-freertos\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
@@ -48,7 +48,7 @@
 02-modbus-freertos\freertos.o: ../Core/Inc/modbus.h
 02-modbus-freertos\freertos.o: ../FreeModbus/mb.h
 02-modbus-freertos\freertos.o: ../FreeModbus/port.h
-02-modbus-freertos\freertos.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
-02-modbus-freertos\freertos.o: D:\Software\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+02-modbus-freertos\freertos.o: E:\Keil\ARM\ARMCC\Bin\..\include\assert.h
+02-modbus-freertos\freertos.o: E:\Keil\ARM\ARMCC\Bin\..\include\inttypes.h
 02-modbus-freertos\freertos.o: ../FreeModbus/mbport.h
 02-modbus-freertos\freertos.o: ../FreeModbus/mbproto.h

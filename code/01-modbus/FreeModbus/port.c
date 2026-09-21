@@ -12,26 +12,22 @@ uint8_t REG_COILS_BUF[REG_COILS_SIZE] = {1, 1, 1, 1, 0, 0, 0, 0, 1, 1};
 // 0f                      | 03 
 // 对应的十六进制数为： 0x0f 0x03
 
-
-// 十路离散量  只读的位控制 
+// 十路离散量 只读的线圈  只读的位控制 
 #define REG_DISC_SIZE  10
 uint8_t REG_DISC_BUF[REG_DISC_SIZE] = {1,1,1,1,0,0,0,0,1,1};
-// 只读的线圈 
-
 
 // 十路保持寄存器  可读可写的2字节寄存器
 #define REG_HOLD_SIZE   10
 uint16_t REG_HOLD_BUF[REG_HOLD_SIZE];
 
 
-// 十路输入寄存器  只读的2字节寄存器 
+// 十路输入寄存器  只读保持寄存器 只读的2字节寄存器 
 #define REG_INPUT_SIZE  10
 uint16_t REG_INPUT_BUF[REG_INPUT_SIZE];
-// 只读保持寄存器 
 
 
-
-/// CMD4命令处理回调函数
+// CMD4命令处理回调函数 
+//0x04: 读输入寄存器
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
     USHORT usRegIndex = usAddress - 1;
@@ -60,7 +56,8 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
     return MB_ENOERR;
 }
 
-/// CMD6、3、16命令处理回调函数
+// CMD6、3、16命令处理回调函数 
+//0x03: 读保持寄存器 0x06: 写单个保持寄存器 0x0f: 写多个线圈寄存器
 eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs, eMBRegisterMode eMode )
 {
     USHORT usRegIndex = usAddress - 1;
@@ -81,12 +78,12 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usN
             usRegIndex++;
             usNRegs--;
         }
-				//printf("usAddress=%d\n",usAddress);
-				// 修改从机地址 REG_HOLD_BUF[9] 的值就是新的从机地址
-				if(usAddress == 10 ) 
-				{
-						Modify_SlaveAdress_Flag = 1; //  会触发1次修改从机地址
-				}
+			//printf("usAddress=%d\n",usAddress);
+			// 修改从机地址 REG_HOLD_BUF[9] 的值就是新的从机地址
+			if(usAddress == 10 ) 
+			{
+				Modify_SlaveAdress_Flag = 1; //  会触发1次修改从机地址
+			}
     }
 
     // 读寄存器
@@ -104,7 +101,8 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usN
     return MB_ENOERR;
 }
 
-/// CMD1、5、15命令处理回调函数
+// CMD1、5、15命令处理回调函数
+//0x01: 读线圈寄存器 0x05: 写单个线圈寄存器 
 eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils, eMBRegisterMode eMode )
 {
     USHORT usRegIndex   = usAddress - 1;
@@ -159,7 +157,8 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCo
     return MB_ENOERR;
 }
 
-/// CMD2命令处理回调函数
+// CMD2命令处理回调函数
+//0x02: 读离散输入寄存器
 eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
     USHORT usRegIndex   = usAddress - 1;
