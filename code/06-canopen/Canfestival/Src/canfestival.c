@@ -4,7 +4,6 @@
 #include "testslave.h"
 #include "f1can.h"
 
-
 CAN_TxHeaderTypeDef   TxHeader;
 CAN_RxHeaderTypeDef   RxHeader;
 
