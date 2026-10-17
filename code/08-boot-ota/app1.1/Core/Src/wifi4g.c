@@ -57,6 +57,18 @@ uint8_t WIFI4G_Parse_Queue(sequeue_t *sq)
 	}
 	
 	// printf("RecvBuf:%s\n",RecvBuf);
+
+	// 4G 模组会用 UTF-8 中文上报连接结果 , 例如 "MQTT 服务器连接失败" 。
+	// 这里必须优先于 Parse_Substr 判断 , 否则会被 "MQTT_CONNECT:" 抢先判成成功 ,
+	// 导致 MQTT_Connect_Server() 误报 OK 、 MQTT_Download_Flag 被错误置 1 。
+	// 用十六进制转义写死 UTF-8 字节 , 避免编译器源码编码差异带来的问题 :
+	//   \xE6\x9C\x8D\xE5\x8A\xA1\xE5\x99\xA8 = "服务器"
+	if (strstr((const char *)RecvBuf, "\xE6\x9C\x8D\xE5\x8A\xA1\xE5\x99\xA8") != NULL)
+	{
+		// printf("4G module report: server connect failed\n");
+		return WIFI4G_ERROR;
+	}
+
 	if (strstr((const char *)RecvBuf, (const char *)Parse_Substr) != NULL) // 找到单词 返回单词的位置
 	{
 		// printf("found Parse_Substr:%s\n",Parse_Substr);

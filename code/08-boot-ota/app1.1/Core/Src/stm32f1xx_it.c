@@ -270,27 +270,28 @@ void USART3_IRQHandler(void)
 // DMA 接收到一半的中断 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
-		if(huart->Instance == USART3)
-		{
-			uint8_t Length  =  DMA_BUF_SIZE/2 - RX3_Offset ; 
-			//printf("HLength=%d\n",Length);
-			
-			if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0){
-					//printf("FIFO Full\n");
-			}
-			RX3_Offset += Length; 
+	if(huart->Instance == USART3)
+	{
+		uint8_t Length  =  DMA_BUF_SIZE/2 - RX3_Offset ; 
+		//printf("HLength=%d\n",Length);
+		
+		if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0){
+		//printf("FIFO Full\n");
 		}
+		RX3_Offset += Length; 
+	}
 }
 
 // DMA传输完成中断   , 就是接收满了的时候 触发中断
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-		if(huart->Instance == USART3)
+	if(huart->Instance == USART3)
     {
         uint8_t Length  =  DMA_BUF_SIZE - RX3_Offset ;  
-				if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0){
-					//printf("FIFO Full\n");
-				}
+		if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0)
+		{
+			//printf("FIFO Full\n");
+		}
         //printf("CLength=%d\n",Length);
         RX3_Offset = 0 ; // 清空dma 位置基准值
     }
@@ -299,9 +300,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 // 用户自定义的函数 ， 处理串口空闲中断
 void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 {
-		if(huart->Instance == USART3)                                  //判断是否是串口3
+	if(huart->Instance == USART3)                                  //判断是否是串口3
     {
-			  if((__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) ||  
+		if((__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) ||  
             __HAL_UART_GET_FLAG(huart, UART_FLAG_NE) )== SET )   //判断是否是帧错误或者噪音中断
         {
             __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_FE);
@@ -320,11 +321,13 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
             uint8_t Length  =  DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx) - RX3_Offset;
 						// 这里启动TIM4 开始计时， 用来检测接收到数据包后，多久要处理 ，设立使用10ms即可
             HAL_TIM_Base_Start_IT(&htim4); // 使能定时器4中断 
-						if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0){
-							//printf("FIFO Full\n");
-						}
+			
+			if(Enqueue_Bytes(&QUART3,RX3_Buf+RX3_Offset,Length) <0)
+			{
+				//printf("FIFO Full\n");
+			}
             RX3_Offset += Length; 
-					  //printf("ILength=%d\n",Length);					   
+			//printf("ILength=%d\n",Length);					   
         }
     }
 		

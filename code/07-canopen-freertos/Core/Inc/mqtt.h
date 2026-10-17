@@ -3,11 +3,9 @@
  
 #include "main.h"
 
-// 宏的值为1  , 使能WIFI 
-// 宏的值为0  , 使能4G
-#define  MQTT_WIFI_4G_ENABLE    1
-
-
+// 宏的值为1  , 使能WIFI 	esp8266
+// 宏的值为0  , 使能4G		ml307r
+#define  MQTT_WIFI_4G_ENABLE    0
 
 
 extern  __IO uint8_t MQTT_UPLoad_Flag  ; // 数据上传服务器标志位， 每隔5秒上传1次

@@ -18,7 +18,7 @@ __IO uint8_t Modify_SlaveAddress_Flag = 0 ; // 修改从机地址标志位
 
 uint8_t Write_SlaveAddress(uint8_t addr,uint8_t data)
 {
-	// i  是eeprom的内存地址 
+	// addr是eeprom的内存地址 
 	// AT24C02_ADDRESS_WRITE 是24c02的地址
 	// 1000 是超时时间 
 	HAL_I2C_Mem_Write(&hi2c1, AT24C02_ADDRESS_WRITE,addr,I2C_MEMADD_SIZE_8BIT,&data,1, 1000); 
@@ -34,7 +34,7 @@ uint8_t Read_SlaveAddress(uint8_t addr,uint8_t *pdata)
 	// eeprom 刚开始没有被写入过， 初始值是0 
 	if( (*pdata == 0 )||(*pdata == 0xff) )
 	{
-			*pdata = 1; 
+		*pdata = 1; 
 	}
 	return SET;
 }
@@ -45,11 +45,9 @@ void Modbus_Init(void)
 	// 程序执行后， 会自动从EEPROM读取设备的地址
 	Read_SlaveAddress(0,&SlaveAddress);
 	printf("SlaveAddress=%d\n",SlaveAddress);
-	eMBInit(MB_RTU, SlaveAddress, 0, 115200, MB_PAR_NONE);		// 初始化modbus为RTU方式，波特率115200，无校验
+	eMBInit(MB_RTU, SlaveAddress, 0, 115200, MB_PAR_NONE);// 初始化modbus为RTU方式，波特率115200，无校验
 	eMBEnable();
 }
-
-
 
 void Modbus_Parse(void)
 {
@@ -58,19 +56,17 @@ void Modbus_Parse(void)
 		TIM1_Timeout_Flag = 0 ;	
 		//  刷新各种硬件传感器的状态  
 		AHT20_Read(); // 读温湿度		
-	
 		// 刷新ina226传感器
 		INA226_Read();
-	
 		// 刷新电位器和CPU温度
 		ADC_VR_CPU_Read();
 	}
-	
 	if(Modify_SlaveAddress_Flag) 
 	{
 		Modify_SlaveAddress_Flag = 0 ;
 		SlaveAddress = REG_HOLD_BUF[9] ;
 		//printf("SlaveAddress=%d\n",SlaveAddress);
+		
 		Write_SlaveAddress(0,SlaveAddress); 
 		HAL_Delay(10);
 		eMBDisable();
@@ -82,38 +78,35 @@ void Modbus_Parse(void)
 	
 	if(REG_HOLD_BUF[0] & LED1_CMD)   
 	{
-			LED_Control(LED1,ON);
+		LED_Control(LED1,ON);
 	}
 	else 
 	{
-			LED_Control(LED1,OFF);
+		LED_Control(LED1,OFF);
 	}
-	/***************************************/
 	if(REG_HOLD_BUF[0] & LED2_CMD)   
 	{
-			LED_Control(LED2,ON);
+		LED_Control(LED2,ON);
 	}
 	else 
 	{
-			LED_Control(LED2,OFF);
+		LED_Control(LED2,OFF);
 	}
-	/***************************************/
 	if(REG_HOLD_BUF[0] & BEEP_CMD)   
 	{
-			BEEP_Control(ON);
+		BEEP_Control(ON);
 	}
 	else 
 	{
-			BEEP_Control(OFF);
+		BEEP_Control(OFF);
 	}
-	/***************************************/
 	if(REG_HOLD_BUF[0] & RELAY_CMD)   
 	{
-			RELAY_Control(ON);
+		RELAY_Control(ON);
 	}
 	else 
 	{
-			RELAY_Control(OFF);
+		RELAY_Control(OFF);
 	}
 }
 

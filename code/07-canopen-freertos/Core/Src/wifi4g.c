@@ -96,7 +96,6 @@ uint8_t ESP8266_Connect_WIFI(void)
 	uint8_t buf[64] = {0};
 	uint8_t ret;
 
-	printf("******************************************\n");
 	strcpy((char *)Parse_Substr, "OK\r\n");
 	WIFI4G_CMD_Status = WIFI4G_NOT; // 初始化标志位
 
@@ -109,7 +108,6 @@ uint8_t ESP8266_Connect_WIFI(void)
 	}
 
 	// 链接WIFI，成功后立即返回， 失败后使用SmartConfig 配置新的WIFI
-	printf("******************************************\n");
 	strcpy((char *)buf, "AT+CWJAP\r\n"); // 接至上次 Wi-Fi 配置中的 AP
 	strcpy((char *)Parse_Substr, "OK\r\n");
 	WIFI4G_CMD_Status = WIFI4G_NOT; // 初始化标志位
@@ -119,7 +117,7 @@ uint8_t ESP8266_Connect_WIFI(void)
 	ret = Test_WIFI4G_CMD_Status(20 * 1000);
 	if (ret == WIFI4G_OK)
 	{
-		OLED_ShowStr(0, 2, (unsigned char *)"WIFI          OK", 2); // 测试8*16字符
+		OLED_ShowStr(0, 2, (unsigned char *)"WIFI          OK", 2); 
 		return SET;													// wifi 链接成功，函数返回
 	}
 	else if (ret == WIFI4G_NOT) // 指令执行无结果
@@ -130,42 +128,42 @@ uint8_t ESP8266_Connect_WIFI(void)
 	{
 
 		// 执行到这里， WIFI链接失败，需要重新配置新的WIFI
-		printf("******************************************\n");
-		OLED_ShowStr(112, 2, (unsigned char *)"--", 2); // 测试8*16字符
-		printf("没有链接wifi，需要链接wifi，请打开airkiss小程序 \r\n");
-
-		strcpy((char *)Parse_Substr, "smartconfig connected wifi\r\n");
+		OLED_ShowStr(112, 2, (unsigned char *)"...", 3); 
+		//printf("没有链接wifi，需要链接wifi，请打开airkiss小程序 \r\n");
+		//strcpy((char *)Parse_Substr, "smartconfig connected wifi\r\n");
+		
 		WIFI4G_CMD_Status = WIFI4G_NOT; // 初始化标志位
 		// 手机热点设置为WPA2 ，AT命令使用 AT+CWSTARTSMART=3,3
 		strcpy((char *)buf, "AT+CWSTARTSMART=3,3\r\n");
-		OLED_ShowStr(0, 2, (unsigned char *)"AT+CWSTARTSMART", 2); // 测试8*16字符
+		OLED_ShowStr(0, 2, (unsigned char *)"AT+CWSTARTSMART", 2); 
 		HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 		// 找到指定的字符，超时时间200秒 ，
 		ret = Test_WIFI4G_CMD_Status(200 * 1000);
 		printf("ret=%d\n", ret);
 		if (ret == WIFI4G_OK) // 链接上wifi
 		{
-			OLED_ShowStr(0, 2, (unsigned char *)"WIFI          OK", 2); // 测试8*16字符
-			printf("关闭smartconfig\r\n");
+			OLED_ShowStr(0, 2, (unsigned char *)"WIFI          OK", 2); 
+			//printf("关闭smartconfig\r\n");
 
 			// 关闭 smartconfig
 			strcpy((char *)Parse_Substr, "OK\r\n");
 			strcpy((char *)buf, "AT+CWSTOPSMART\r\n");
-			OLED_ShowStr(0, 2, (unsigned char *)"AT+CWSTOPSMART", 2); // 测试8*16字符
+			OLED_ShowStr(0, 2, (unsigned char *)"AT+CWSTOPSMART", 2); 
 			HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 
 			if (Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)
 			{
-				OLED_ShowStr(112, 2, (unsigned char *)"--", 2); // 测试8*16字符
+				OLED_ShowStr(112, 2, (unsigned char *)"...", 3); 
 				return RESET;									// 指令执行失败
 			}
 
-			OLED_ShowStr(0, 2, (unsigned char *)"WIFI          OK", 2); // 测试8*16字符
+			OLED_ShowStr(0, 2, (unsigned char *)"WIFI          OK", 2); 
 			return SET;													// wifi 链接成功，函数返回
 		}
 	}
 	return SET;
 }
+
 uint8_t ESP8266_Connect_TCPServer(void)
 {
 	uint8_t buf[64] = {0};
@@ -173,10 +171,10 @@ uint8_t ESP8266_Connect_TCPServer(void)
 	strcpy((char *)buf, "AT+CIPMUX=0\r\n"); // 单链接
 	HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 
-	OLED_ShowStr(0, 4, (unsigned char *)"AT+CIPMUX", 2); // 测试8*16字符
+	//OLED_ShowStr(0, 4, (unsigned char *)"AT+CIPMUX", 2); 
 	if (Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)
 	{
-		OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   --", 2); // 测试8*16字符
+		//OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   --", 2); 
 		return RESET;												// 等待OK返回
 	}
 
@@ -184,19 +182,18 @@ uint8_t ESP8266_Connect_TCPServer(void)
 	strcpy((char *)buf, "AT+CIPMODE=1\r\n"); // 设置透传模式
 	HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 
-	OLED_ShowStr(0, 4, (unsigned char *)"AT+CIPMODE=1", 2); // 测试8*16字符
+	//OLED_ShowStr(0, 4, (unsigned char *)"AT+CIPMODE=1", 2); 
 	if (Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)
 	{
-		OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   --", 2); // 测试8*16字符
+		//OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   --", 2); 
 		return RESET;												// 等待OK返回
 	}
 
 	WIFI4G_CMD_Status = WIFI4G_NOT; // 初始化标志位
-	// strcpy((char *)buf,"AT+CIPSTART=\"TCP\",\"172.20.10.11\",8000\r\n");
 	strcpy((char *)buf, "AT+CIPSTART=\"TCP\",\"192.168.1.186\",8000\r\n");
 	HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 
-	OLED_ShowStr(0, 4, (unsigned char *)"AT+CIPSTART", 2); // 测试8*16字符
+	//OLED_ShowStr(0, 4, (unsigned char *)"AT+CIPSTART", 2); 
 
 	// 找到指定的字符， wifi链接成功, 超时时间20秒
 	uint8_t ret = Test_WIFI4G_CMD_Status(20 * 1000);
@@ -205,15 +202,15 @@ uint8_t ESP8266_Connect_TCPServer(void)
 		strcpy((char *)buf, "AT+CIPSEND\r\n"); // 发送数据 , 开启透传
 		HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 
-		OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   OK", 2); // 测试8*16字符
-		OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan --", 2); // 测试8*16字符
+		//OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   OK", 2); 
+		//OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan --", 2); 
 
 		WIFI4G_TouChuan_Flag = 1; //  设置透传标志
 		return SET;
 	}
 	else // ERROR  没有连接到服务器，需要重新连接
 	{
-		OLED_ShowStr(0, 6, (unsigned char *)"TouChuan --", 2); // 测试8*16字符
+		//OLED_ShowStr(0, 6, (unsigned char *)"TouChuan --", 2); 
 		return RESET;
 	}
 }
@@ -223,13 +220,12 @@ void ESP8266_Disconnect(void)
 
 	uint8_t buf[64] = {0};
 	WIFI4G_CMD_Status = WIFI4G_NOT; // 初始化标志位
-	strcpy((char *)buf, "+++");
+	strcpy((char *)buf, "+++");		//退出透传
 	HAL_UART_Transmit(&huart3, buf, strlen((const char *)buf), 1000);
-	OLED_ShowStr(0, 6, (unsigned char *)"+++         ", 2); // 测试8*16字符
-
+	//OLED_ShowStr(0, 6, (unsigned char *)"+++         ", 2); 
 	HAL_Delay(100);
-	OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan", 2); // 测试8*16字符
-	printf("Exit TouChuan\n");
+	//OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan", 2); 
+	//printf("Exit TouChuan\n");
 
 	strcpy((char *)buf, "AT+CIPCLOSE\r\n"); // 关闭连接
 	HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
@@ -237,11 +233,11 @@ void ESP8266_Disconnect(void)
 	WIFI4G_CMD_Status = WIFI4G_NOT; // 初始化标志位
 	if (Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)
 	{
-		OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan --", 2); // 测试8*16字符
+		//OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan --", 2); 
 		return;														// 等待OK返回
 	}
-	OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan OK", 2); // 测试8*16字符
-	OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   --", 2); // 测试8*16字符
+	//OLED_ShowStr(0, 6, (unsigned char *)"Exit TouChuan OK", 2); 
+	//OLED_ShowStr(0, 4, (unsigned char *)"TouChuan...   --", 2); 
 
 	// 防止在透传模式下再次按下OK 按键, 做一个标志
 	WIFI4G_TouChuan_Flag = 0; // 退出透传模式
@@ -265,3 +261,9 @@ void ESP8266_Test(void)
 	}
 	HAL_Delay(200);
 }
+
+
+
+
+
+

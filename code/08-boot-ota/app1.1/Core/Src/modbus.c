@@ -19,56 +19,54 @@ uint16_t REG_HOLD_BUF[REG_HOLD_SIZE];
 
 void Modbus_Parse(void)
 {
-		if(TIM1_Timeout_Flag)  // 500ms 周期性的执行一次
-		{
-				TIM1_Timeout_Flag = 0 ;	
-				//  刷新各种硬件传感器的状态  
-				AHT20_Read(); // 读温湿度		
+	if(TIM1_Timeout_Flag)  // 500ms 周期性的执行一次
+	{
+		TIM1_Timeout_Flag = 0 ;	
+		//  刷新各种硬件传感器的状态  
+		AHT20_Read(); // 读温湿度		
+	
+		// 刷新ina226传感器
+		INA226_Read();
+	
+		// 刷新电位器和CPU温度
+		ADC_VR_CPU_Read();
 			
-				// 刷新ina226传感器
-				INA226_Read();
-			
-				// 刷新电位器和CPU温度
-				ADC_VR_CPU_Read();
-			
-			  // 状态指示灯 
-				
-		}
-		
-		if(REG_HOLD_BUF[0] & LED1_CMD)   
-		{
-				LED_Control(LED1,ON);
-		}
-		else 
-		{
-				LED_Control(LED1,OFF);
-		}
-		/***************************************/
-		if(REG_HOLD_BUF[0] & LED2_CMD)   
-		{
-				LED_Control(LED2,ON);
-		}
-		else 
-		{
-				LED_Control(LED2,OFF);
-		}
-		/***************************************/
-		if(REG_HOLD_BUF[0] & BEEP_CMD)   
-		{
-				BEEP_Control(ON);
-		}
-		else 
-		{
-				BEEP_Control(OFF);
-		}
-		/***************************************/
-		if(REG_HOLD_BUF[0] & RELAY_CMD)   
-		{
-				RELAY_Control(ON);
-		}
-		else 
-		{
-				RELAY_Control(OFF);
-		}
+	}
+	
+	if(REG_HOLD_BUF[0] & LED1_CMD)   
+	{
+		LED_Control(LED1,ON);
+	}
+	else 
+	{
+		LED_Control(LED1,OFF);
+	}
+	/***************************************/
+	if(REG_HOLD_BUF[0] & LED2_CMD)   
+	{
+		LED_Control(LED2,ON);
+	}
+	else 
+	{
+		LED_Control(LED2,OFF);
+	}
+	/***************************************/
+	if(REG_HOLD_BUF[0] & BEEP_CMD)   
+	{
+		BEEP_Control(ON);
+	}
+	else 
+	{
+		BEEP_Control(OFF);
+	}
+	/***************************************/
+	if(REG_HOLD_BUF[0] & RELAY_CMD)   
+	{
+		RELAY_Control(ON);
+	}
+	else 
+	{
+		RELAY_Control(OFF);
+	}
 }
 

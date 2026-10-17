@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07-canopen-freertos 工程面试分析报告</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1b1f24; --ink2:#4a5560; --ink3:#7b8794;
+    --line:#e3e6ea; --line2:#cfd4da;
+    --blue:#185FA5; --blue-bg:#E6F1FB; --blue-line:#B5D4F4;
+    --teal:#0F6E56; --teal-bg:#E1F5EE; --teal-line:#9FE1CB;
+    --amber:#854F0B; --amber-bg:#FAEEDA; --amber-line:#FAC775;
+    --red:#A32D2D; --red-bg:#FCEBEB; --red-line:#F7C1C1;
+    --purple:#534AB7; --purple-bg:#EEEDFE; --purple-line:#CECBF6;
+    --gray-bg:#F1EFE8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:40px 24px 80px;
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.75;
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+
+  header.top{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:28px 32px; margin-bottom:22px;
+  }
+  header.top h1{margin:0 0 6px; font-size:26px; font-weight:600; letter-spacing:-0.3px;}
+  header.top .sub{color:var(--ink3); font-size:14px; margin:0;}
+  .meta-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:22px;}
+  .meta{background:var(--gray-bg); border-radius:10px; padding:12px 14px;}
+  .meta .k{font-size:12px; color:var(--ink3); letter-spacing:.4px;}
+  .meta .v{font-size:14px; font-weight:600; margin-top:3px;}
+
+  section{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:26px 32px; margin-bottom:22px;
+  }
+  h2{
+    font-size:19px; font-weight:600; margin:0 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;
+  }
+  h2 .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:8px; background:var(--blue); color:#fff;
+    font-size:13px; font-weight:600; flex:0 0 auto;
+  }
+  h3{font-size:15.5px; font-weight:600; margin:24px 0 10px; color:var(--ink);}
+  h3:first-of-type{margin-top:6px;}
+  h4{font-size:14px; font-weight:600; margin:16px 0 8px; color:var(--ink2);}
+  p{margin:8px 0;}
+  ul,ol{margin:8px 0; padding-left:22px;}
+  li{margin:5px 0;}
+  code{
+    background:#eef1f4; border:1px solid var(--line); border-radius:5px;
+    padding:1px 6px; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:13px; color:#1f3a5f;
+  }
+  pre{
+    background:#1e2430; color:#e6edf3; border-radius:10px; padding:14px 16px;
+    overflow-x:auto; font-size:13px; line-height:1.6; margin:10px 0;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;}
+
+  .callout{border-radius:10px; padding:14px 18px; margin:14px 0; font-size:14px; border:1px solid;}
+  .callout .t{font-weight:600; display:block; margin-bottom:4px;}
+  .co-blue{background:var(--blue-bg); border-color:var(--blue-line); color:#0C447C;}
+  .co-teal{background:var(--teal-bg); border-color:var(--teal-line); color:#085041;}
+  .co-amber{background:var(--amber-bg); border-color:var(--amber-line); color:#633806;}
+  .co-red{background:var(--red-bg); border-color:var(--red-line); color:#791F1F;}
+  .co-purple{background:var(--purple-bg); border-color:var(--purple-line); color:#3C3489;}
+
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:13.5px;}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--gray-bg); font-weight:600; font-size:13px; white-space:nowrap;}
+  tbody tr:nth-child(even){background:#fafbfc;}
+
+  .q{border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin:12px 0; background:#fcfcfd;}
+  .q .qh{font-weight:600; font-size:14.5px; margin:0 0 8px; display:flex; gap:8px; align-items:flex-start;}
+  .q .qh .no{
+    flex:0 0 auto; min-width:24px; height:22px; border-radius:6px; background:#eef1f4;
+    color:var(--ink2); font-size:12px; font-weight:600; display:inline-flex;
+    align-items:center; justify-content:center; padding:0 6px; margin-top:1px;
+  }
+  .q .qa{font-size:14px; color:var(--ink2);}
+  .q .qa b{color:var(--ink); font-weight:600;}
+  .tag{
+    display:inline-block; font-size:11.5px; font-weight:600; padding:2px 8px;
+    border-radius:20px; margin-left:8px; vertical-align:middle; white-space:nowrap;
+  }
+  .t-hot{background:var(--red-bg); color:var(--red); border:1px solid var(--red-line);}
+  .t-mid{background:var(--amber-bg); color:var(--amber); border-color:var(--amber-line); border:1px solid var(--amber-line);}
+  .t-base{background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal-line);}
+  .t-plus{background:var(--purple-bg); color:var(--purple); border:1px solid var(--purple-line);}
+
+  .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px;}
+  .mini{background:var(--gray-bg); border-radius:10px; padding:16px 18px;}
+  .mini h4{margin-top:0;}
+  .mini ul{padding-left:18px; margin:6px 0 0;}
+  .mini li{font-size:13.5px; color:var(--ink2);}
+
+  footer{text-align:center; color:var(--ink3); font-size:13px; margin-top:30px;}
+  @media print{
+    body{background:#fff;padding:0;font-size:12px;}
+    section,header.top{break-inside:avoid; border:none; padding:12px 0;}
+    pre{background:#f4f6f8;color:#1e2430;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>07-canopen-freertos 工程面试分析报告</h1>
+  <p class="sub">STM32F103 + FreeRTOS + CANopen(CanFestival) + Modbus RTU + MQTT 多协议融合终端</p>
+  <div class="meta-grid">
+    <div class="meta"><div class="k">主控</div><div class="v">STM32F103C8T6 · Cortex-M3 @72MHz</div></div>
+    <div class="meta"><div class="k">存储资源</div><div class="v">64KB Flash / 20KB SRAM</div></div>
+    <div class="meta"><div class="k">RTOS</div><div class="v">FreeRTOS V10.3.1（CMSIS-OS v1）</div></div>
+    <div class="meta"><div class="k">工具链</div><div class="v">CubeMX 6.14.1 + HAL F1 V1.8.6 + Keil MDK V5.32</div></div>
+    <div class="meta"><div class="k">协议栈</div><div class="v">CanFestival / FreeModbus / MQTT(AT)</div></div>
+    <div class="meta"><div class="k">任务数</div><div class="v">3 个（Modbus / MQTT / CANopen）</div></div>
+  </div>
+</header>
+
+<section>
+  <h2><span class="num">1</span>一句话讲清这个工程</h2>
+  <p>
+    这是一台<b>工业智能控制终端</b>：通过 I2C/ADC 采集温湿度（AHT20）、电压电流功率（INA226）、电位器与芯片温度，
+    统一汇聚到一块共享的「保持寄存器」<code>REG_HOLD_BUF[]</code>；再同时用 <b>三条通道</b>对外提供服务与上报——
+  </p>
+  <ul>
+    <li><b>Modbus RTU 从机（RS485）</b>：上位机/PLC 读写寄存器，实现本地组态与远程控制；</li>
+    <li><b>MQTT over WiFi/4G</b>：经 ESP8266 或 ML307 模组用 AT 指令连云，周期上报 JSON 遥测、订阅下行 JSON 控制指令；</li>
+    <li><b>CANopen 从站（CAN 总线）</b>：实现 NMT/SDO/PDO/心跳，把同一批数据发布到工业 CAN 网络。</li>
+  </ul>
+  <p>控制输出为 LED1/LED2、蜂鸣器、继电器，另有 OLED 本地显示与 6 个按键交互。三个协议共用同一份数据，做到「一次采集，三网可达」。</p>
+
+  <div class="callout co-blue">
+    <span class="t">面试时的电梯陈述（30 秒版）</span>
+    这是一个基于 STM32F103 的多协议工业终端。我用 CubeMX 搭 HAL 层，移植 FreeRTOS 跑三个同优先级任务分别承载 Modbus RTU 从机、MQTT 云端通信和 CANopen 从站；数据用一块共享寄存器做中枢，三个协议读写同一份数据。外设侧做了 UART 空闲中断 + DMA 循环双缓冲收包、环形队列缓存、TIM2 给 CanFestival 提供 1us 时基、TIM4 做模组数据包超时判帧。
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">2</span>关键机制速查表（背下来，面试直接答）</h2>
+
+  <h3>2.1 定时器分配</h3>
+  <table>
+    <thead><tr><th>定时器</th><th>分频/重载</th><th>时基</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td>TIM1</td><td>作为 HAL 时基</td><td>1ms 中断</td><td>HAL_IncTick() 喂 <code>uwTick</code>；同时软计数 500ms 置 <code>TIM1_Timeout_Flag</code>，触发传感器采样</td></tr>
+      <tr><td>TIM2</td><td>PSC=72-1，ARR=0x2000</td><td>1us 计数 / 8.192ms 溢出</td><td>CanFestival 的 <code>setTimer()/getElapsedTime()</code> 时基，中断里调 <code>TimeDispatch()</code></td></tr>
+      <tr><td>TIM3</td><td>PSC=3599，ARR=100</td><td>5ms</td><td>初始化了但未在业务中使用（潜在遗留）</td></tr>
+      <tr><td>TIM4</td><td>PSC=7200-1，ARR=100</td><td>10ms 单次</td><td>模组串口「一帧接收结束」延时判帧，到点后关中断并解析队列</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 中断优先级（NVIC_PRIORITYGROUP_4：4 位抢占、0 位子优先级）</h3>
+  <table>
+    <thead><tr><th>中断</th><th>抢占优先级</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>TIM1（HAL 时基）</td><td>15</td><td>最低，不参与实时竞争</td></tr>
+      <tr><td>PendSV / SysTick</td><td>15</td><td>FreeRTOS 内核占用</td></tr>
+      <tr><td>USART1 / USART2 / USART3</td><td>5</td><td>= <code>configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY</code></td></tr>
+      <tr><td>DMA1_CH3（USART3_RX）/ CH5（USART1_RX）</td><td>5</td><td>同上</td></tr>
+      <tr><td>TIM2 / TIM3 / TIM4</td><td>5</td><td>同上</td></tr>
+      <tr><td>USB_LP_CAN1_RX0</td><td>5</td><td>同上</td></tr>
+      <tr><td>EXTI9_5 / EXTI15_10（按键）</td><td>5</td><td>同上</td></tr>
+    </tbody>
+  </table>
+  <div class="callout co-amber">
+    <span class="t">为什么全都卡在 5？</span>
+    FreeRTOS 规定：<b>优先级数值小于 <code>configMAX_SYSCALL_INTERRUPT_PRIORITY</code>（即 5）的中断，绝对不能调用任何 <code>...FromISR()</code> API</b>。这里所有外设中断都设为 5，正好是可以安全调用 FreeRTOS 中断 API 的最低档，同时高于内核的 15。这是标准做法，也是高频考点。
+  </div>
+
+  <h3>2.3 任务与资源</h3>
+  <table>
+    <thead><tr><th>任务</th><th>优先级</th><th>栈</th><th>周期</th><th>职责</th></tr></thead>
+    <tbody>
+      <tr><td>ModbusTask</td><td>osPriorityNormal</td><td>128 words (512B)</td><td>osDelay(10)</td><td><code>eMBPoll()</code> 轮询收帧 + <code>Modbus_Parse()</code> 刷新传感器与执行器</td></tr>
+      <tr><td>MQTTTask</td><td>osPriorityNormal</td><td>128 words (512B)</td><td>osDelay(2000)</td><td>上电连接 Broker，之后每 2s 拼 JSON 上报</td></tr>
+      <tr><td>CANopenTask</td><td>osPriorityNormal</td><td>128 words (512B)</td><td>osDelay(1000)</td><td>启动 TIM2、配 CAN 滤波器、<code>setNodeId</code> + <code>setState</code> 进 NMT 状态机</td></tr>
+    </tbody>
+  </table>
+  <p>堆配置：<code>configTOTAL_HEAP_SIZE = 3072</code> 字节，<code>configTICK_RATE_HZ = 1000</code>（1ms 一个 tick），<code>configMAX_PRIORITIES = 7</code>，<code>configUSE_MUTEXES = 1</code>，<b>未开启软件定时器</b>（<code>configUSE_TIMERS</code> 未定义）。Idle 任务用静态分配。</p>
+
+  <h3>2.4 CAN 位时序</h3>
+  <table>
+    <thead><tr><th>参数</th><th>值</th><th>推算</th></tr></thead>
+    <tbody>
+      <tr><td>Prescaler</td><td>8</td><td>APB1 = 36MHz，CAN 时钟 36MHz</td></tr>
+      <tr><td>BS1 / BS2 / SJW</td><td>6TQ / 2TQ / 1TQ</td><td>1 位 = 1+6+2 = 9 TQ</td></tr>
+      <tr><td>结果</td><td><b>500 kbps</b></td><td>36MHz ÷ 8 ÷ 9 = 500,000</td></tr>
+    </tbody>
+  </table>
+  <p>采样点 = (1+6)/9 ≈ <b>77.8%</b>，符合 CiA 推荐的 75%~87.5%。滤波器配置为 32 位 ID+MASK、Mask 全 0 → <b>接收所有 ID</b>，全部交给协议栈自己过滤。</p>
+</section>
+
+<section>
+  <h2><span class="num">3</span>面试题库（按模块 · 含答题要点）</h2>
+  <p style="color:var(--ink3);font-size:13.5px;">
+    标记说明：<span class="tag t-hot">必问</span> 高频核心题，<span class="tag t-mid">重点</span> 大概率会问，
+    <span class="tag t-base">基础</span> 查漏补缺，<span class="tag t-plus">加分</span> 答好能拉开差距。
+  </p>
+
+  <h3>A · C 语言与嵌入式基本功</h3>
+
+  <div class="q"><p class="qh"><span class="no">A1</span><span><code>volatile</code> 是干什么的？工程里 <code>__IO uint8_t WIFI4G_CMD_Status</code> 为什么必须加？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>告诉编译器该变量可能被「编译器看不见的力量」改变，禁止把它缓存在寄存器里，每次访问都从内存重新读。<b>本工程场景：</b><code>WIFI4G_CMD_Status</code> 在 USART3 中断里被改写，在任务里的 <code>Test_WIFI4G_CMD_Status()</code> 忙等循环中读取。若不加 volatile，<code>-O2</code> 下编译器会认为循环里没人改它，直接优化成死循环。<b>同理：</b><code>TIM1_Timeout_Flag</code>、<code>Modify_SlaveAddress_Flag</code>、<code>MQTT_Download_Flag</code>。注意 <code>__IO</code> 就是 <code>volatile</code> 的 CMSIS 别名。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">A2</span><span><code>static</code> 修饰局部变量 / 全局变量 / 函数分别有什么效果？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>①修饰局部变量 → 存储期变为整个程序，放 <code>.data/.bss</code> 而非栈，只初始化一次；②修饰全局变量/函数 → 链接属性变 internal，只在本编译单元可见，避免重名；③修饰函数 → 内部链接。<b>本工程例子：</b><code>Get_CPUID()</code> 里 <code>static uint8_t cpuid[32]</code>——返回的是局部数组地址，不加 static 返回的就是悬空指针，函数一返回栈就失效了。这是必答的经典点。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">A3</span><span>结构体字节对齐？为什么 CAN 报文处理要小心对齐？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>默认按成员中最大对齐数补齐，会插入 padding。<b>踩坑场景：</b>把收到的字节流直接 <code>memcpy</code> 到结构体、或按结构体解析网络/总线数据，会因 padding 错位。<b>解法：</b><code>#pragma pack(1)</code> 或手动逐字段移位拼装。本工程 <code>Message</code> 结构体（CanFestival）是逐字段赋值的，安全；但你可以主动提一句「如果做协议解析我会显式 pack 或手拼」。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">A4</span><span>大小端？CanFestival 里的 <code>CANOPEN_LITTLE_ENDIAN</code> 有什么用？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>小端 = 低字节存低地址。Cortex-M3 默认小端。<b>CANopen 的坑：</b>CANopen 报文在总线上按「小端」传输（低字节先发），但 SDO/PDO 的数值又是「高字节先发」的场景会混淆。<code>CANOPEN_LITTLE_ENDIAN</code> 宏控制 <code>canDispatch</code>/<code>objacces</code> 里的字节序转换（<code>swapByte</code>）。面试可延伸：网络字节序是大端，所以 Modbus 寄存器、TCP/IP 都要转。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">A5</span><span><code>memcpy</code> / <code>strcpy</code> / <code>sprintf</code> 的区别与风险？<span class="tag t-base">基础</span></span></p>
+  <p class="qa"><b>要点：</b>memcpy 按字节复制、需显式长度、不认 <code>\0</code>；strcpy 遇 <code>\0</code> 停、<b>不检查目标缓冲区大小 → 栈溢出风险</b>；sprintf 会格式化并补 <code>\0</code>，同样不检查长度。<b>本工程隐患：</b><code>MQTT_SendData()</code> 里 <code>sendbuf[128]</code> 拼 7 个整数的 JSON，若数值变大可能溢出；生产代码应改用 <code>snprintf</code> 并检查返回值。这个回答能直接显示你有代码安全意识。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">A6</span><span><code>REG_HOLD_BUF[0] = REG_HOLD_BUF[0] &amp; (~LED1_CMD)</code> 是怎么实现位操作的？<span class="tag t-base">基础</span></span></p>
+  <p class="qa"><b>要点：</b>用「按位与取反」清位、「按位或」置位。<code>LED1_CMD = (1&lt;&lt;0)</code>、<code>LED2_CMD=(1&lt;&lt;1)</code>、<code>BEEP_CMD=(1&lt;&lt;2)</code>、<code>RELAY_CMD=(1&lt;&lt;3)</code>，一个字节低 4 位分别对应 4 个执行器。写 0 用 <code>&amp;= ~mask</code>，写 1 用 <code>|= mask</code>。可延伸：读改写非原子，多任务/中断并发时会丢更新。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">A7</span><span>内存分区？20KB SRAM 怎么规划？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>栈(Stack) / 堆(Heap) / <code>.bss</code>(未初始化全局) / <code>.data</code>(已初始化全局) / <code>.rodata</code>(常量) / <code>.text</code>(代码，在 Flash)。<b>本工程粗算：</b>FreeRTOS 堆 3072B + Idle 静态栈 512B + 3 个任务栈各 512B + <code>RX1_Buf</code>/<code>RX3_Buf</code> 各 256B + <code>QUART3</code> 队列 256B+8B + <code>RecvBuf[256]</code> + OLED 显存 + 各种缓冲，20KB 相当紧张。<code>startup</code> 里 Stack_Size 0x400 / Heap_Size 0x200 也要提。</p></div>
+
+  <h3>B · STM32 / HAL / 外设</h3>
+
+  <div class="q"><p class="qh"><span class="no">B1</span><span>讲一下时钟树：为什么 APB1 是 36MHz，定时器却是 72MHz？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>HSE 8MHz → PLL ×9 → SYSCLK 72MHz → AHB 不分频 72MHz → APB1 2 分频 = 36MHz，APB2 不分频 = 72MHz。<b>关键规则：</b>当 APB 分频系数 ≠ 1 时，挂在该总线上的定时器时钟 = APB 时钟 × 2，所以 APB1 定时器实际 72MHz。CAN 挂 APB1，时钟 36MHz，这也是 500kbps 计算的基准。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">B2</span><span><code>HAL_Delay()</code> 的实现原理？为什么这里把时基从 SysTick 换成了 TIM1？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b><code>HAL_Delay</code> 本质是拿 <code>uwTick</code> 做非阻塞比较忙等，而 <code>uwTick</code> 由时基中断里的 <code>HAL_IncTick()</code> 累加。<b>换 TIM1 的原因：</b>FreeRTOS 要独占 SysTick 做任务调度（<code>xPortSysTickHandler</code>），如果 HAL 也用 SysTick，两者会打架、<code>HAL_Delay</code> 在调度器挂起时不准。所以 CubeMX 里把 <code>SYS Timebase Source</code> 改成 TIM1，并单独在 <code>stm32f1xx_hal_timebase_tim.c</code> 里实现 <code>HAL_InitTick</code>。这是 CubeMX + FreeRTOS 组合的标配考点。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">B3</span><span>CAN 波特率是怎么算出来的？采样点为什么重要？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>见 2.4 表。36MHz ÷ Prescaler(8) = 4.5MHz = 1 TQ；1 位 = Sync(1) + BS1(6) + BS2(2) = 9 TQ；4.5MHz ÷ 9 = 500kbps。采样点 = (1+BS1)/总TQ = 7/9 ≈ 77.8%。<b>为什么要采样点：</b>采样点太靠前抗抖动差、太靠后同步余量不足，CiA 301 建议 75%~87.5%。SJW=1TQ 表示允许重同步补偿 1 个 TQ。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">B4</span><span>AT24C02 用 I2C 怎么读写？<code>HAL_I2C_Mem_Write</code> 里的参数什么意思？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>AT24C02 是 2Kbit=256 字节 EEPROM，8 位字地址。<code>HAL_I2C_Mem_Write(&amp;hi2c1, DevAddr, MemAddr, I2C_MEMADD_SIZE_8BIT, &amp;data, 1, timeout)</code>：设备地址(0xA0写/0xA1读)、内存地址(0)、地址长度(8位)、数据、长度、超时。<b>本工程用法：</b>从机地址存在 EEPROM 偏移 0，上电 <code>Read_SlaveAddress()</code> 读回；读到 0 或 0xFF 视为未烧录，兜底为 1。<b>注意点：</b>EEPROM 写周期 5ms，所以写完后 <code>HAL_Delay(10)</code> 再重初始化。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">B5</span><span>ADC 怎么测 CPU 温度和电位器？<span class="tag t-base">基础</span></span></p>
+  <p class="qa"><b>要点：</b>F103 内部温度传感器接在 ADC1_IN16，需先使能 <code>TSVREFE</code>；电位器接 ADC1_IN1（PA1）。采样时间 239.5 周期是为了高阻源稳定。温度换算：<code>T(℃) = (Vsense - V25) / Avg_Slope + 25</code>，F103 典型 V25≈1.43V、斜率≈4.3mV/℃。</p></div>
+
+  <h3>C · 中断 / NVIC / 通信收包</h3>
+
+  <div class="q"><p class="qh"><span class="no">C1</span><span>为什么所有外设中断优先级都设成 5？和 FreeRTOS 有什么关系？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>见 2.2。<code>configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY = 5</code> → 数值 &lt; 5 的中断不受 FreeRTOS 临界区屏蔽，绝不能在里调 <code>FromISR</code> API；数值 ≥ 5 的中断会被 <code>portENTER_CRITICAL</code> 屏蔽，可以安全调用。设为 5 是「能调用 RTOS API 的最强优先级」。<b>反问加分点：</b>可以指出 SysTick 和 PendSV 必须是最低优先级 15，否则上下文切换会被打断。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">C2</span><span>串口「空闲中断 + DMA」是怎么工作的？比纯中断好在哪？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>DMA 配成 <code>DMA_CIRCULAR</code> 循环模式，一直把 RX 数据搬到 <code>RX3_Buf[256]</code>，CPU 全程不参与；总线空闲一个字节时间后触发 IDLE 中断，此时 <code>DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER()</code> 就是本帧长度，取出即可。<b>优势：</b>①不定长帧自适应，不需要事先知道长度；②CPU 占用极低，适合 115200 甚至更高速率；③不会像「逐字节中断」那样丢字节。<b>配套：</b>还有 <code>RxHalfCplt</code>（半满）和 <code>RxCplt</code>（全满）回调，用 <code>RX3_Offset</code> 记录已处理位置，防止循环覆盖。这是本工程最值得讲的技术亮点之一。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">C3</span><span>为什么还要用 TIM4 延时 10ms 才去解析？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>这是<b>「软件判帧」</b>：模组（尤其早期 ESP8266）回显可能被拆成多次 IDLE 中断，或者一条 AT 响应分几段到达。做法是每次收到数据就重启 TIM4（10ms 单次），如果在 10ms 内又有新数据就重置，直到总线安静 10ms 才认为「一包收完」，关掉 TIM4 再统一解析队列。<b>本质是「以静默间隔判帧尾」</b>，和 Modbus RTU 的 3.5 字符间隔判帧是同一个思想，可以联系起来讲。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">C4</span><span>工程里在中断中调用 <code>printf</code> / <code>HAL_UART_Transmit</code>，有什么问题？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>这是本工程<b>真实存在的隐患</b>，面试官很可能会指出来。<code>fputc</code> 重定向成阻塞式 <code>HAL_UART_Transmit(..., HAL_MAX_DELAY)</code>，在 <code>USER_UART_IRQHandler</code> 里 <code>printf("FIFO Full\n")</code> 会：①以 115200 波特率阻塞几毫秒；②<code>HAL_UART_Transmit</code> 内部依赖 <code>uwTick</code> 超时，若中断优先级高于时基中断会<b>死等</b>；③破坏中断的「快进快出」原则，拖垮整个系统实时性。<b>正确做法：</b>中断里只置标志/入队，把打印放到任务里；或用无阻塞的 DMA 发送；至少改成环形缓冲 + DMA。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">C5</span><span>按键 EXTI 去抖怎么做的？这种实现有什么优缺点？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>在 <code>HAL_GPIO_EXTI_Callback</code> 里用全局 <code>uwTick</code> 与 <code>old_uwTick</code> 做差，小于 200ms 直接 return，否则更新时间戳并处理。<b>优点：</b>实现简单，无需额外定时器。<b>缺点：</b>①<code>uwTick</code> 在中断里读、在主循环写，未加原子保护，<code>uwTick - old_uwTick</code> 是 32 位运算在 M3 上本身原子，问题不大，但语义上应加 volatile；②去抖窗口 200ms 偏大，快速连按会丢键；③在 ISR 里调 <code>printf</code> 和 <code>LED_Control</code>，同样有 C4 的问题；④<code>Key_Value</code> 是「单变量事件队列」，连续两次按键会覆盖。</p></div>
+
+  <div class="q"><p class="qh"><span class="no">C6</span><span>串口错误恢复为什么只清 FE/NE？<code>huart-&gt;ErrorCode &amp;= HAL_UART_ERROR_FE;</code> 这行对吗？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>清 FE（帧错误）/NE（噪声错误）后 <code>HAL_UART_DMAStop</code> + 重新 <code>HAL_UART_Receive_DMA</code>，是应对 ESP8266 上电时波特率不对导致的乱码流——这个场景抓得很准。<b>但</b> <code>&amp;=</code> 是「保留该位」而不是「清除」，写成 <code>ErrorCode &amp;= HAL_UART_ERROR_FE</code> 逻辑上是保留 FE 位、清掉其它位，与注释「清除错误标志位」不符，正确应为 <code>&amp;= ~HAL_UART_ERROR_FE</code>。能主动指出这个笔误，是很强的加分项。</p></div>
+
+  <h3>D · DMA</h3>
+  <div class="q"><p class="qh"><span class="no">D1</span><span>循环模式 vs 普通模式？为什么这里必须用循环模式？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>普通模式传完就停、需要软件重启；循环模式搬完自动回到起点继续，永不停止，适合「持续接收」的场景。本工程串口收包是永续的，所以 <code>DMA_CIRCULAR</code>。</p></div>
+  <div class="q"><p class="qh"><span class="no">D2</span><span>怎么知道已经收了多少字节？为什么用 <code>RX1_Offset</code> 这个偏移量？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b><code>NDTR</code>（剩余传输数）递减，所以已收 = <code>BUFFER_SIZE - __HAL_DMA_GET_COUNTER()</code>。<b>为什么要有 Offset：</b>因为缓冲区是循环的，处理过一半后不能重复处理，<code>RX_Offset</code> 记录「上次读到哪」，本次长度 = 总已收 - 已处理偏移。当 DMA 绕回（半满/全满中断）时把 Offset 归零。</p></div>
+  <div class="q"><p class="qh"><span class="no">D3</span><span><code>uint8_t Length = DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(...)</code>，<code>DMA_BUF_SIZE=256</code>，有问题吗？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>有。<code>Length</code> 是 <code>uint8_t</code>（0~255），而 <code>DMA_BUF_SIZE=256</code>，当 DMA 计数值为 0 时结果 256 会截断成 <b>0</b>；同理 <code>RX1_Offset</code>/<code>RX3_Offset</code> 也是 <code>uint8_t</code>，理论上可到 255 但语义上应能表示 256。修法：把类型改成 <code>uint16_t</code>/<code>uint32_t</code>。这是「类型宽度不足」的典型题，能主动发现非常加分。</p></div>
+
+  <h3>E · FreeRTOS</h3>
+  <div class="q"><p class="qh"><span class="no">E1</span><span><code>osThreadDef(Modbus, ModbusTask, osPriorityNormal, 0, 128)</code> 里的 128 是什么单位？栈够吗？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>128 是 <b>StackType_t 个数</b>，Cortex-M3 上 1 word = 4 字节，即 512 字节。<b>风险：</b>任务里有 <code>sprintf</code>、<code>cJSON_Parse</code>、递归解析，512B 非常容易栈溢出。生产建议 ≥1KB，并打开 <code>configCHECK_FOR_STACK_OVERFLOW</code> + <code>vApplicationStackOverflowHook</code>。<b>回答时主动提这个改进点，面试官会觉得你真跑过。</b></p></div>
+  <div class="q"><p class="qh"><span class="no">E2</span><span>三个任务同优先级，会发生什么？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>同优先级任务在 <code>configUSE_TIME_SLICING</code>（默认 1）下按时间片轮转（每 tick = 1ms 切换），本质是「分时共享」而非抢占。好处是简单；坏处是实时性无法分级。<b>更合理的设计：</b>CANopen 收报文要求快，应给较高优先级；Modbus 轮询次之；MQTT 上报可以最低，或干脆用事件/信号量驱动而不是定周期死等。</p></div>
+  <div class="q"><p class="qh"><span class="no">E3</span><span><code>configTOTAL_HEAP_SIZE = 3072</code>，够不够？为什么？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>3 个任务 × 512B 栈 = 1536B，加 3 个 TCB（各约 90~100B）≈ 300B，合计约 1.9KB，剩 ~1.1KB 给内核队列/信号量。<b>结论：能跑但余量很小</b>，一旦某任务栈需求上升或再加任务就会 <code>pvPortMalloc</code> 返回 NULL，任务创建静默失败。<b>可选方案：</b>加大堆、改用 <code>heap_4</code> 并留意碎片、或全面改静态分配（本工程已开 <code>configSUPPORT_STATIC_ALLOCATION</code>）。</p></div>
+  <div class="q"><p class="qh"><span class="no">E4</span><span><code>HAL_Delay</code> 和 <code>osDelay</code> 有什么区别？在任务里用 HAL_Delay 会怎样？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b><code>HAL_Delay</code> 是纯忙等（CPU 空转，不释放 CPU），<code>osDelay</code> 会把任务挂起、让出 CPU 给别的任务。<b>本工程隐患：</b><code>MQTT_Connect_Server()</code> → <code>ESP8266_Connect_WIFI()</code> → <code>Test_WIFI4G_CMD_Status()</code> 内部用 <code>HAL_Delay(1)</code> 死等，超时可达 <b>200 秒</b>！这会让 MQTTTask 占着 CPU 空转，如果它优先级最高会饿死其它任务。应改成 <code>osDelay(1)</code>。</p></div>
+  <div class="q"><p class="qh"><span class="no">E5</span><span><code>REG_HOLD_BUF</code> 被 3 个任务 + 多个中断同时读写，需要保护吗？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>需要。当前<b>完全没有保护</b>，是典型的「共享数据竞态」。风险场景：①MQTT 任务读 7 个寄存器拼 JSON 时，Modbus 任务刚好在写，会读到「半新半旧」的数据；②<code>REG_HOLD_BUF[0] &amp;= ~mask</code> 是读-改-写三步，中间被抢占会丢更新。<b>方案：</b>短临界区用 <code>taskENTER_CRITICAL</code>；或加互斥量（注意中断里不能用 mutex，要用 <code>FromISR</code> 版本或关中断）；更好的做法是「双缓冲 + 原子指针交换」。</p></div>
+  <div class="q"><p class="qh"><span class="no">E6</span><span>FreeRTOS 的启动流程是什么？SVC/PendSV/SysTick 分别干嘛？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b><code>MX_FREERTOS_Init()</code> 创建任务 → <code>osKernelStart()</code> → 配置 SysTick → <code>SVC</code> 异常启动第一个任务。<b>三兄弟：</b>SVC = 启动调度器/首次切任务；PendSV = 上下文切换（最低优先级，保证不打断其它中断）；SysTick = 每 1ms 产生 tick，判断是否要切任务。</p></div>
+  <div class="q"><p class="qh"><span class="no">E7</span><span>工程为什么没开 FreeRTOS 软件定时器？CANopen 的定时怎么办？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b><code>configUSE_TIMERS</code> 未定义（默认 0），所以没有 Timer Task，省了 1 个任务的开销和内存。CANopen 需要的毫秒级定时由 <b>硬件 TIM2</b> 提供：<code>setTimer()</code> 直接改 <code>TIM2-&gt;ARR</code>，<code>getElapsedTime()</code> 读 <code>TIM2-&gt;CNT</code>，TIM2 中断里调 <code>TimeDispatch()</code> 驱动心跳/PDO 超时。<b>好处：</b>精度 1us、不依赖 RTOS、不受任务调度影响；<b>坏处：</b>耦合了硬件，移植时要改。这是「RTOS 定时 vs 硬件定时」很好的讨论素材。</p></div>
+
+  <h3>F · CAN / CANopen（本工程核心，必被深挖）</h3>
+
+  <div class="q"><p class="qh"><span class="no">F1</span><span>CAN 总线的仲裁机制？为什么 CAN 适合工业现场？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>CAN 用「非破坏性逐位仲裁」：显性位(0) 覆盖隐性位(1)，节点边发边听，发现 ID 被压就退出、变成接收方，赢了的一方继续发，<b>报文不丢失、不重发</b>。ID 越小优先级越高。<b>适合工业的原因：</b>差分双绞线抗干扰、带 CRC-15 校验、自动重发、错误节点可自动退出（总线关闭），多主结构。</p></div>
+  <div class="q"><p class="qh"><span class="no">F2</span><span>CAN 的 5 种错误检测机制？错误计数器怎么工作？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>位错误、位填充错误、CRC 错误、格式错误、应答错误。发送错误计数 TEC、接收错误计数 REC；TEC/REC &gt; 127 进「错误被动」，TEC &gt; 255 进「总线关闭(Bus-Off)」，自动脱离总线。<b>本工程注意：</b><code>AutoBusOff = DISABLE</code>，意味着 Bus-Off 后<b>不会自动恢复</b>，必须软件干预；<code>AutoRetransmission = DISABLE</code> 则失败不自动重发。这两项在生产环境一般都要 ENABLE，是很好的「改进点」回答。</p></div>
+  <div class="q"><p class="qh"><span class="no">F3</span><span>CANopen 的通信对象有哪些？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>
+  <table>
+    <thead><tr><th>对象</th><th>COB-ID</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>NMT</td><td>0x000</td><td>网络管理：启动/停止/复位节点，主站广播</td></tr>
+      <tr><td>SYNC</td><td>0x080</td><td>同步报文，触发同步 PDO</td></tr>
+      <tr><td>EMCY</td><td>0x080+NodeID</td><td>紧急报文，上报故障码</td></tr>
+      <tr><td>TIME</td><td>0x100</td><td>时间戳广播</td></tr>
+      <tr><td>TPDO1~4</td><td>0x180/0x280/0x380/0x480 + NodeID</td><td>发送过程数据（本工程 0x1800 配置）</td></tr>
+      <tr><td>RPDO1~4</td><td>0x200/0x300/0x400/0x500 + NodeID</td><td>接收过程数据（本工程 0x1400 配置）</td></tr>
+      <tr><td>SDO tx/rx</td><td>0x580/0x600 + NodeID</td><td>参数读写，访问对象字典</td></tr>
+      <tr><td>心跳</td><td>0x700 + NodeID</td><td>心跳/节点保护（本工程 0x1017 配置周期）</td></tr>
+    </tbody>
+  </table></p></div>
+  <div class="q"><p class="qh"><span class="no">F4</span><span>NMT 状态机是怎样的？本工程 <code>setState(Initialisation)</code> 后直接 <code>setState(Operational)</code> 对吗？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>标准状态机是
+  <code>Initialisation → Pre-operational → Operational → Stopped</code> 四态。<b>各态能力：</b>Init 只做自举和 OD 默认值加载；Pre-op 允许 SDO、NMT、心跳，<b>但不允许 PDO</b>；Operational 才允许 PDO 收发；Stopped 只留心跳和 NMT。<b>本工程写法分析：</b>CanFestival 的 <code>setState(Operational)</code> 内部会依次走 Init→Pre-op→Operational，所以功能上能跑通；但从「工程规范」角度，跳过显式的 Pre-op 阶段意味着<b>放弃了在 Pre-op 里通过 SDO 动态配置 PDO 映射的机会</b>——本工程 PDO 映射是 OD 里写死的，所以没问题。面试时把这两层讲清楚，就是高分答案。</p></div>
+  <div class="q"><p class="qh"><span class="no">F5</span><span>对象字典是什么？0x1000 / 0x1017 / 0x1018 / 0x1400 / 0x1800 / 0x2000 分别是什么？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>对象字典是 CANopen 节点的「数据模型」，用 16 位索引 + 8 位子索引寻址，每个条目有数据类型和读写权限（RO/RW/WO）。
+  <table>
+    <thead><tr><th>索引</th><th>含义</th><th>本工程</th></tr></thead>
+    <tbody>
+      <tr><td>0x1000</td><td>设备类型</td><td>默认 0</td></tr>
+      <tr><td>0x1001</td><td>错误寄存器</td><td>EMCY 用</td></tr>
+      <tr><td>0x1003</td><td>预定义错误场</td><td>错误历史</td></tr>
+      <tr><td>0x1005</td><td>SYNC COB-ID</td><td>同步报文 ID</td></tr>
+      <tr><td>0x1017</td><td>生产者心跳时间</td><td>心跳周期(ms)</td></tr>
+      <tr><td>0x1018</td><td>Identity 身份</td><td>厂商/产品/版本/序列号</td></tr>
+      <tr><td>0x1400</td><td>RPDO1 通信参数</td><td>COB-ID、传输类型</td></tr>
+      <tr><td>0x1600</td><td>RPDO1 映射参数</td><td>映射到哪个 OD 条目</td></tr>
+      <tr><td>0x1800</td><td>TPDO1 通信参数</td><td>发送 PDO 配置</td></tr>
+      <tr><td>0x1A00</td><td>TPDO1 映射参数</td><td>同上</td></tr>
+      <tr><td><b>0x2000</b></td><td><b>制造商自定义区</b></td><td><b>本工程核心：子索引 01~0A 映射 Control/TP/RH/VL/CU/PW/VR/CPU/RES/SlaveAddress</b></td></tr>
+    </tbody>
+  </table>
+  <b>关键点：</b>0x2000 那 10 个变量就是「CANopen 侧的数据出口」，和 <code>REG_HOLD_BUF</code> 是同一批业务数据的两种视图。</p></div>
+  <div class="q"><p class="qh"><span class="no">F6</span><span>SDO 和 PDO 的区别？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>SDO 是「有应答的配置通道」，点对点、可靠、可传任意长度（加速 SDO ≤4 字节 / 分段 / 块传输），用于读写对象字典；PDO 是「无应答的实时通道」，广播式、一对一或一对多、最多 8 字节，用于过程数据。<b>一句话记忆：</b>SDO 配参数，PDO 传数据。PDO 又分事件触发、定时触发、SYNC 同步触发。</p></div>
+  <div class="q"><p class="qh"><span class="no">F7</span><span>PDO 映射是怎么实现的？为什么要映射？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>在 0x1600（RPDO 映射）/0x1A00（TPDO 映射）里填「索引+子索引+位长」，把多个 OD 变量打包进一帧 PDO，一帧最多 8 字节。好处是<b>用一帧传多个数据、效率高</b>。本工程 PDO 映射在 <code>TestSlave.od</code> 里由 <code>objdictedit</code> 生成，运行时不再动态改。</p></div>
+  <div class="q"><p class="qh"><span class="no">F8</span><span>CanFestival 是怎么移植到 STM32 的？<code>setTimer</code> / <code>getElapsedTime</code> 为什么这么写？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>CanFestival 是「协议栈与硬件解耦」的架构，需要用户实现 4 个移植接口：
+  <pre><code>canSend()          // 发一帧，映射到 HAL_CAN_AddTxMessage
+canDispatch()      // 收一帧，在 CAN RX 中断回调里调用
+setTimer(value)    // 设定下次定时：TIM2->ARR = TIM2->CNT + value
+getElapsedTime()   // 读当前时间：return TIM2->CNT</code></pre>
+  <b>为什么这样写：</b>TIM2 预分频 72-1 → 计数频率 1MHz → 1 个计数 = 1us，正好满足 <code>MS_TO_TIMEVAL(ms) = ms*1000</code>（见 timerscfg.h）。ARR 直接赋值实现「从现在起 value 微秒后到期」，中断里 <code>TimeDispatch()</code> 处理到期的定时任务。<b>TIMEVAL_MAX = 0x2000</b> 对应 TIM2 的 Period，防止超范围。<b>这是「1us 精度的软件定时器」实现思路，很值得展开讲。</b></p></div>
+  <div class="q"><p class="qh"><span class="no">F9</span><span>在 CAN 接收中断里直接调 <code>canDispatch()</code> 有什么风险？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>①协议栈处理可能耗时（SDO 分段、PDO 映射写入），在 ISR 里做会拉长中断、影响实时性；②<code>canDispatch</code> 内部可能反向调用 <code>canSend</code>（如 SDO 应答），在中断上下文里调 <code>HAL_CAN_AddTxMessage</code> 要保证邮箱可用，本工程 <code>canSend</code> 失败直接 <code>return 0</code> 不重试，会丢应答；③协议栈用了全局状态，中断与任务若并发访问同一 <code>CO_Data</code> 就有竞态。<b>更稳的做法：</b>ISR 里只把报文压入环形队列，用信号量唤醒 CANopen 任务在任务上下文里 dispatch。</p></div>
+  <div class="q"><p class="qh"><span class="no">F10</span><span>看一下 <code>canSend</code> 里这段：<code>while((HAL_CAN_AddTxMessage(...) != HAL_OK)) { return 0; }</code>，有问题吗？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>有。这个 <code>while</code> 循环体内是无条件 <code>return 0</code>，所以循环最多执行一次——<b>它实际上是 <code>if</code>，写 <code>while</code> 是误导</b>。要么改成 <code>if</code>，要么真的实现「等邮箱空闲再重试」。另外 <code>memcpy(TxMessage.Data, ...)</code> 里 <code>TxMessage</code> 是未初始化的局部结构体，只用了它的 <code>Data</code> 成员，其余字段未赋值即传给 <code>HAL_CAN_AddTxMessage</code>（实际只读 <code>Data</code>），逻辑上碰巧没问题但属于「未初始化内存」的坏味道。<b>能指出这两点，说明你审过代码。</b></p></div>
+
+  <h3>G · Modbus</h3>
+  <div class="q"><p class="qh"><span class="no">G1</span><span>Modbus RTU 帧结构？为什么帧之间要 3.5 字符静默？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>帧 = <code>从机地址(1B) + 功能码(1B) + 数据(N) + CRC16(2B)</code>。RTU 靠「时间间隔」判帧：帧内字符间隔 ≤1.5 字符时间，帧间 ≥3.5 字符时间；&lt;1.5 字符时间的小停顿会被当作噪声丢弃。115200 波特率下 1 字符 ≈ 86.8us，3.5 字符 ≈ 304us。<b>本工程关联：</b>TIM4 的 10ms 判帧思想一致。</p></div>
+  <div class="q"><p class="qh"><span class="no">G2</span><span><code>eMBInit</code> / <code>eMBEnable</code> / <code>eMBPoll</code> 的关系？<code>eMBPoll</code> 是阻塞的吗？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b><code>eMBInit(MB_RTU, 从机地址, 端口, 波特率, 校验)</code> 配置模式与回调表；<code>eMBEnable()</code> 置状态为 ENABLED 并开接收；<code>eMBPoll()</code> 是<b>非阻塞轮询</b>：检查状态机是否有完整帧 → 校验 CRC → 分派到功能码处理 → 组织应答发出。<b>所以必须放在任务循环里周期性调用</b>，本工程每 10ms 一次。移植层需要实现 <code>mbportserial.c</code> / <code>mbporttimer.c</code>（定时器用于 3.5 字符超时）。</p></div>
+  <div class="q"><p class="qh"><span class="no">G3</span><span>为什么改从机地址要 <code>eMBDisable → eMBClose → eMBInit</code> 走一遍？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>FreeModbus 的从机地址在 <code>eMBInit</code> 时被写入内部状态，<b>运行中不能直接改</b>，必须停掉协议栈、关闭串口、用新地址重新初始化。本工程流程：检测 <code>Modify_SlaveAddress_Flag</code> → 读 <code>REG_HOLD_BUF[9]` 新地址 → 写 EEPROM → 停栈重启 → 同步 <code>setNodeId()</code> 给 CANopen。<b>亮点：</b>Modbus 地址和 CANopen NodeID 联动，这个设计可以主动讲。</p></div>
+  <div class="q"><p class="qh"><span class="no">G4</span><span>支持哪些功能码？RS485 半双工怎么控制收发方向？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>本工程 mbconfig.h 全开：01/02 读线圈与离散输入、03/04 读保持/输入寄存器、05/06 写单个线圈/寄存器、0F/10 写多个线圈/寄存器、11 报从机 ID、08 诊断。RS485 半双工靠 <code>RS485_WR</code>（PB2）切换 DE/RE：发送前置高，发完（TC 标志）拉低。要提「必须在最后一个字节完全移出后才切回接收，否则会截断尾字节」。</p></div>
+
+  <h3>H · 通信 / AT 指令 / MQTT</h3>
+  <div class="q"><p class="qh"><span class="no">H1</span><span>MQTT 的核心概念？QoS 0/1/2 的区别？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>发布/订阅模型，中间是 Broker，主题 Topic 分级（<code>/</code> 分隔），支持通配符 <code>+</code>（单层）<code>#</code>（多层）。QoS0 最多一次（可能丢）、QoS1 至少一次（可能重复）、QoS2 恰好一次（开销最大）。还有遗嘱消息(LWT)、保留消息(Retained)、Clean Session。<b>本工程：</b>上行 <code>STM32/UpLoad/&lt;CPUID&gt;</code>、下行 <code>STM32/DownLoad/&lt;CPUID&gt;</code>，用 96 位芯片唯一 ID 做主题后缀和 ClientID，保证多设备不撞。</p></div>
+  <div class="q"><p class="qh"><span class="no">H2</span><span>AT 指令交互框架是怎么设计的？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>三步走：①<code>strcpy(Parse_Substr, "OK\r\n")</code> 设定「期望匹配的应答特征串」；②清 <code>WIFI4G_CMD_Status</code> 标志；③<code>HAL_UART_Transmit</code> 发指令；④<code>Test_WIFI4G_CMD_Status(timeout)</code> 带超时忙等标志位。<b>中断侧</b>在 IDLE 中断把数据入队并启动 TIM4，TIM4 到点后 <code>WIFI4G_Parse_Queue()</code> 出队拼成 <code>RecvBuf</code>，<code>strstr</code> 匹配期望串 → 置 OK/ERROR 标志。<b>优点：</b>解耦清晰；<b>缺点：</b>超时用 <code>HAL_Delay(1)</code> 忙等，应改 <code>osDelay</code>；<code>Parse_Substr</code> 是全局共享的，多指令并发会串味。</p></div>
+  <div class="q"><p class="qh"><span class="no">H3</span><span>为什么用环形队列缓冲模组数据？直接用数组不行吗？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>中断产生的速度和处理速度不匹配，队列起「削峰」作用，防止中断里处理不过来丢数据。<b>本工程实现细节：</b><code>sequeue_t</code> 用「front/rear 相等为空、rear+1==front 为满」来区分空满，故意浪费一个元素。<b>可以反问的点：</b>队列本身没加锁，中断里 <code>Enqueue_Bytes</code>、任务里 <code>Dequeue</code>，<code>front/rear</code> 是 <code>int32_t</code>，单核 M3 上读写是原子的，但「判空→读→改 front」三步不是原子的，理论上存在竞态窗口，严格做法是临界区保护。</p></div>
+  <div class="q"><p class="qh"><span class="no">H4</span><span>ESP8266 和 ML307 两套代码怎么切换的？<span class="tag t-base">基础</span></span></p>
+  <p class="qa"><b>要点：</b>用 <code>#if MQTT_WIFI_4G_ENABLE</code> 条件编译，ESP8266 走 <code>AT+CWMODE/CWJAP/MQTTUSERCFG/MQTTCONN/MQTTSUB</code>，ML307（4G）走 <code>AT+DTUTASK/MQTT/MQTTIP/MQSUB/MQPUB</code>。<b>评价：</b>用宏切换是入门做法，模块多了会代码膨胀；更好的设计是「抽象出统一的模组接口（函数指针表）」，运行时选择驱动，符合开闭原则。</p></div>
+  <div class="q"><p class="qh"><span class="no">H5</span><span>cJSON 解析时要注意什么？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>①<code>cJSON_Parse</code> 失败返回 NULL 必须判空；②<code>cJSON_GetObjectItem</code> 也可能返回 NULL，取值前必须判空（本工程做了，很好）；③<b>必须 <code>cJSON_Delete</code> 释放</b>，否则每次下行指令都漏一块堆内存——本工程在末尾调用了，正确；④cJSON 大量用 <code>malloc</code>，在 20KB RAM 的 MCU 上是主要内存风险，可考虑换 <code>jsmn</code> 之类的零分配解析器。<b>这个「换零分配解析器」的建议非常加分。</b></p></div>
+
+  <h3>I · 系统设计 / 综合</h3>
+  <div class="q"><p class="qh"><span class="no">I1</span><span>画一下整个系统的数据流？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点（照架构图讲）：</b>
+  <br><b>采集路径：</b>TIM1 每 500ms 置 <code>TIM1_Timeout_Flag</code> → ModbusTask 里 <code>Modbus_Parse()</code> 检测到标志 → 读 AHT20(温湿度) / INA226(电压电流功率) / ADC(电位器+CPU温度) → 写入 <code>REG_HOLD_BUF[1..7]</code>。
+  <br><b>输出路径（三路并发）：</b>① Modbus 主站读 03 功能码 → FreeModbus 回调从 <code>REG_HOLD_BUF</code> 取值回帧；② MQTTTask 每 2s 把 <code>REG_HOLD_BUF[1..7]</code> 拼成 JSON 经 AT 指令上行；③ CANopen 把数据映射到 OD 0x2000，通过 TPDO/SDO 发到 CAN 总线。
+  <br><b>控制路径（反向）：</b>① Modbus 06/10 写 <code>REG_HOLD_BUF[0]</code> → <code>Modbus_Parse()</code> 按位驱动 LED/蜂鸣器/继电器；② MQTT 下行 JSON → <code>MQTT_Parse_JsonData()</code> 解析 LED1/LED2/BEEP/RELAY → 同样写 <code>REG_HOLD_BUF[0]</code>；③ CANopen SDO/RPDO 写入 → OD 回调 → 同步控制。
+  <br><b>一句话：</b><code>REG_HOLD_BUF[]</code> 是全局数据总线，三条协议都是它的「视图」。</p></div>
+  <div class="q"><p class="qh"><span class="no">I2</span><span>三条协议共享一份数据，怎么保证一致性？现在有什么问题？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>见 E5。补充：①<code>REG_HOLD_BUF[0]</code> 的位操作用「读-改-写」，两个协议同时写会丢位，应先读快照再原子提交；②上报的 7 个寄存器不是同一时刻的快照，可能撕裂，应该「加锁拷一份到临时数组再上报」；③CANopen 侧 <code>DeviceInfo_*</code> 与 <code>REG_HOLD_BUF</code> 之间还需要一层同步（本工程靠 OD 回调），要确认回调是原子更新的。</p></div>
+  <div class="q"><p class="qh"><span class="no">I3</span><span>20KB RAM / 64KB Flash 你怎么做取舍？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>①RAM：能用静态就不用动态，<code>malloc</code> 尽量只在初始化阶段；缓冲区分配合理论峰值；FreeRTOS 堆压到 3KB；②Flash：CanFestival + FreeModbus + cJSON 三个库都很大，可关掉不用的功能码、关掉调试打印、用 <code>-Os</code>、把常量字符串放 <code>const</code> 进 Flash；③外设缓冲用 DMA 直传减少 RAM 中转。</p></div>
+  <div class="q"><p class="qh"><span class="no">I4</span><span>项目名带 OTA，你会怎么设计 OTA 升级？<span class="tag t-plus">加分</span></span></p>
+  <p class="qa"><b>要点：</b>F103C8 只有 64KB Flash，做 A/B 双分区很紧张，更现实的是 <b>Bootloader + 单 App 分区</b>：①Bootloader 占 8~12KB，App 从 0x08003000 起；②升级流程：云端下发固件（分片，经 MQTT/CANopen SDO/Modbus 均可）→ 写入 Flash 暂存区或直接擦写 App 区 → 校验（CRC32 / MD5）→ 置升级标志到 EEPROM 或备份寄存器 → 复位 → Bootloader 检查标志、校验通过则跳转新 App，失败则回滚；③要点：断点续传、掉电保护、版本号防回滚、跳转前关中断、重设向量表 <code>SCB->VTOR</code>、<code>__set_MSP()</code>。这个回答能直接体现工程完整度。</p></div>
+  <div class="q"><p class="qh"><span class="no">I5</span><span>现场出现 HardFault 你怎么定位？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点：</b>本工程 <code>HardFault_Handler</code> 是死循环，没有任何信息，这是<b>必须改进的地方</b>。标准做法：①在 Handler 里读栈帧（MSP/PSP 自动压栈的 8 个寄存器），取出 <b>PC</b> 值，配合 <code>.map</code> 文件或 Keil 反汇编定位到出错行；②读 <code>CFSR</code>（<code>SCB->CFSR</code>）判断是总线错误/内存管理错误/用法错误；③读 <code>BFAR</code>/<code>MMFAR</code> 拿到非法访问地址；④常见原因：空指针、数组越界、栈溢出、未对齐访问、在中断里调了不可重入函数、任务栈太小。⑤Keil 可以开 <code>HardFault</code> 断点或用 <code>Fault Report</code> 脚本自动解栈。</p></div>
+  <div class="q"><p class="qh"><span class="no">I6</span><span>这个项目你觉得最大的技术难点是什么？<span class="tag t-hot">必问</span></span></p>
+  <p class="qa"><b>要点（按含金量排序，挑 1~2 个讲）：</b>①<b>CanFestival 的移植</b>——需要自己实现 <code>canSend/canDispatch/setTimer/getElapsedTime</code> 四个硬件接口，还要用 TIM2 做出 1us 精度的软件定时器，且 <code>MS_TO_TIMEVAL</code> 的换算必须和预分频严格对应；②<b>不定长帧接收</b>——串口 IDLE 中断 + DMA 循环 + 半满/全满回调 + 环形队列 + TIM4 二次判帧，四层配合才稳定，中间任何一环出错都会丢包；③<b>三协议共存的实时性</b>——三个任务抢 CPU，还要保证 CANopen 的定时不能被拖慢。</p></div>
+
+  <h3>J · 工程化 / 工具链</h3>
+  <div class="q"><p class="qh"><span class="no">J1</span><span>CubeMX 生成的代码和你写的代码怎么隔离？重新生成会覆盖吗？<span class="tag t-mid">重点</span></span></p>
+  <p class="qa"><b>要点：</b>所有手写代码必须放在 <code>/* USER CODE BEGIN xxx */</code> 与 <code>/* USER CODE END xxx */</code> 之间，CubeMX 重新生成时只保留这对标记内的内容。<b>注意：</b><code>OD/TestSlave.c</code> 是 <code>gen_cfile.py</code> 生成的、<code>Drivers/</code> 是 HAL 官方库、<code>Middlewares/</code> 是 FreeRTOS 源码，这三处都不应该手改。目录结构上 <code>Core/</code>(应用+配置) / <code>Drivers/</code>(HAL) / <code>Middlewares/</code>(RTOS) / <code>OD/</code>(对象字典) / <code>Canfestival/</code> / <code>FreeModbus/</code> 分层清晰，是加分项。</p></div>
+  <div class="q"><p class="qh"><span class="no">J2</span><span>Keil 里 <code>printf</code> 重定向到串口为什么要勾 MicroLIB？<span class="tag t-mid">重点</span></p>
+  <p class="qa"><b>要点：</b>标准 C 库的 <code>printf</code> 依赖半主机（semihosting）机制，在无 OS 的裸机上会卡住；勾选 <b>Use MicroLIB</b> 或实现 <code>__use_no_semihosting</code> + <code>fputc</code> 重定向即可。<b>本工程</b>在 <code>usart.c</code> 里重写了 <code>fputc()</code>，把每个字符用 <code>HAL_UART_Transmit</code> 发到 USART1。<b>性能提醒：</b>逐字节发送非常慢，长字符串会阻塞很久，应该改成 DMA 或缓冲批量发送。</p></div>
+  <div class="q"><p class="qh"><span class="no">J3</span><span>你平时怎么调试这类多协议嵌入式系统？<span class="tag t-mid">重点</span></p>
+  <p class="qa"><b>要点：</b>①<b>分层隔离</b>：先用串口助手单独验 AT 指令、用 Modbus Poll / QModMaster 验从机、用 CANopen 主站工具（CANopen Magic / CANopenNode 上位机）验从站；②<b>在线调试</b>：Keil + ST-Link 打断点、看变量、<code>Watch</code> 窗口看 <code>REG_HOLD_BUF</code>、<code>uxTaskGetStackHighWaterMark</code> 看栈水位；③<b>工具</b>：逻辑分析仪/示波器看 CAN 波形和位时序、USB-CAN 分析仪抓包、串口抓 AT 交互日志；④<b>兜底</b>：OLED 本地显示关键状态（本工程已经在用），硬件看门狗。</p></div>
+</section>
+
+<section>
+  <h2><span class="num">4</span>面试官大概率会挑的「坑」（附改进方案）</h2>
+  <p>这部分是本工程<b>真实存在的代码级问题</b>。面试官如果仔细看了代码，很可能直接指出来考你的反应。提前准备好答案，从「被动挨打」变成「主动亮剑」。</p>
+
+  <table>
+    <thead><tr><th style="width:22%">问题</th><th style="width:38%">位置与现象</th><th style="width:40%">改进方案（背下来）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>中断里阻塞打印</b><br><span class="tag t-hot">最高危</span></td>
+        <td><code>stm32f1xx_it.c</code> 的 <code>USER_UART_IRQHandler()</code> 里 <code>printf("FIFO Full\n")</code>；<code>HAL_GPIO_EXTI_Callback</code> 里 6 处 <code>printf</code>。fputc 是 <code>HAL_MAX_DELAY</code> 阻塞发送。</td>
+        <td>中断里只置标志/入队，打印移到任务；或改成环形缓冲 + DMA 异步发送；至少把 <code>HAL_MAX_DELAY</code> 换成有限超时。</td>
+      </tr>
+      <tr>
+        <td><b>共享数据无保护</b><br><span class="tag t-hot">必问</span></td>
+        <td><code>REG_HOLD_BUF[]</code> 被 ModbusTask / MQTTTask / CAN 中断读写，无任何锁或临界区；<code>&amp;= ~mask</code> 是读-改-写。</td>
+        <td>加 <code>taskENTER_CRITICAL()</code> 保护短临界区；或引入互斥量；上报时先加锁拷贝快照再发送。</td>
+      </tr>
+      <tr>
+        <td><b>DMA 长度类型溢出</b><br><span class="tag t-plus">加分</span></td>
+        <td><code>uint8_t Length = DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER()</code>，<code>DMA_BUF_SIZE=256</code>，结果为 256 时截断为 0。</td>
+        <td>类型改为 <code>uint16_t</code> / <code>uint32_t</code>；<code>RX1_Offset</code>/<code>RX3_Offset</code> 同步改宽。</td>
+      </tr>
+      <tr>
+        <td><b>任务栈偏小</b><br><span class="tag t-mid">重点</span></td>
+        <td>3 个任务栈均为 128 words = 512B，任务内有 <code>sprintf</code>、<code>cJSON_Parse</code>、多层函数调用。</td>
+        <td>提到 ≥1KB；打开 <code>configCHECK_FOR_STACK_OVERFLOW</code>，用 <code>uxTaskGetStackHighWaterMark()</code> 实测后定值。</td>
+      </tr>
+      <tr>
+        <td><b>任务里 HAL_Delay 长忙等</b><br><span class="tag t-mid">重点</span></td>
+        <td><code>Test_WIFI4G_CMD_Status()</code> 内部 <code>HAL_Delay(1)</code>，MQTT 连网超时最长 200 秒，CPU 全程空转。</td>
+        <td>改成 <code>osDelay(1)</code> 释放 CPU；更好的做法是用信号量/事件组等待中断置位，而不是轮询标志。</td>
+      </tr>
+      <tr>
+        <td><b>堆偏小</b><br><span class="tag t-plus">加分</span></td>
+        <td><code>configTOTAL_HEAP_SIZE = 3072</code>，3 任务栈+TCB 已占约 1.9KB。</td>
+        <td>加大堆或全面静态分配；打开 <code>configUSE_MALLOC_FAILED_HOOK</code> 捕获分配失败。</td>
+      </tr>
+      <tr>
+        <td><b>CAN 中断里跑协议栈</b><br><span class="tag t-mid">重点</span></td>
+        <td><code>HAL_CAN_RxFifo0MsgPendingCallback</code> 里直接 <code>canDispatch()</code>，可能反向调 <code>canSend</code>。</td>
+        <td>ISR 只入队 + 释放信号量，dispatch 放到 CANopen 任务上下文；或至少确认协议栈可重入性。</td>
+      </tr>
+      <tr>
+        <td><b>CAN 未开自动恢复</b><br><span class="tag t-mid">重点</span></td>
+        <td><code>AutoBusOff = DISABLE</code>、<code>AutoRetransmission = DISABLE</code>。</td>
+        <td>生产环境建议都 ENABLE，保证 Bus-Off 自恢复、丢帧自动重发。</td>
+      </tr>
+      <tr>
+        <td><b>错误标志清除写错</b><br><span class="tag t-plus">加分</span></td>
+        <td><code>huart-&gt;ErrorCode &amp;= HAL_UART_ERROR_FE;</code> 注释说「清除」，实际是「保留该位」。</td>
+        <td>应为 <code>&amp;= ~HAL_UART_ERROR_FE</code>。</td>
+      </tr>
+      <tr>
+        <td><b><code>while</code> 当 <code>if</code> 用</b><br><span class="tag t-plus">加分</span></td>
+        <td><code>canSend()</code> 里 <code>while(...!=HAL_OK){ return 0; }</code>，循环体无条件 return，最多执行一次。</td>
+        <td>改成 <code>if</code>，或真正实现「等邮箱空闲重试」。</td>
+      </tr>
+      <tr>
+        <td><b>HardFault 无信息</b><br><span class="tag t-hot">必问</span></td>
+        <td><code>HardFault_Handler</code> 只有 <code>while(1)</code>，现场无法定位。</td>
+        <td>实现栈帧解析打印 PC/LR/CFSR，或加 Keil Fault Report；开独立看门狗兜底。</td>
+      </tr>
+      <tr>
+        <td><b>三任务同优先级</b><br><span class="tag t-mid">重点</span></td>
+        <td>全部 <code>osPriorityNormal</code>，靠时间片轮转。</td>
+        <td>按实时性分级：CANopen &gt; Modbus &gt; MQTT；或改事件驱动降低轮询开销。</td>
+      </tr>
+      <tr>
+        <td><b>TIM3 空转</b><br><span class="tag t-base">基础</span></td>
+        <td>TIM3 初始化了（5ms）但中断里没有任何业务，白占一个外设和中断。</td>
+        <td>确认需求后删除，或用于看门狗喂狗/心跳 LED。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout co-red">
+    <span class="t">回答这类问题的正确姿势</span>
+    不要辩解「能跑就行」。标准话术是：<b>「这里确实有隐患，我当时是按 XXX 场景做的简化；如果上生产我会改成 YYY，原因是 ZZZ。」</b>
+    承认 + 给方案 + 说清权衡，比强行辩护得分高得多。
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5</span>可以主动抛出的加分话题</h2>
+  <p>面试尾声，主动讲这些能把「做完了」升级成「做好了」：</p>
+  <div class="grid2">
+    <div class="mini">
+      <h4>架构层面</h4>
+      <ul>
+        <li>把 <code>REG_HOLD_BUF</code> 抽象成统一的「数据模型层」，三个协议只做适配器，新增协议（如 BACnet、EtherCAT）不改业务代码</li>
+        <li>模组驱动抽象成函数指针接口，WiFi/4G/以太网可运行时切换，替代 <code>#if</code> 宏</li>
+        <li>事件驱动替代轮询：用队列 + 信号量替代 <code>osDelay(10)</code> 死等</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>可靠性层面</h4>
+      <ul>
+        <li>独立看门狗 IWDG + 各任务喂狗上报，单任务卡死可复位</li>
+        <li>统一错误处理：EMCY（CANopen）+ 异常寄存器（Modbus）+ 告警上报（MQTT）三路故障通知</li>
+        <li>参数持久化：从机地址、CANopen NodeID、上报周期都存 EEPROM/Flash 参数区，带 CRC 校验</li>
+        <li>断网缓存：MQTT 断线时数据存本地环形缓冲，恢复后补传</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>性能层面</h4>
+      <ul>
+        <li>CANopen PDO 用事件触发 + 抑制时间，替代周期发送，降低总线负载</li>
+        <li>串口发送改 DMA + 空闲中断，去掉逐字节阻塞</li>
+        <li>用 <code>uxTaskGetStackHighWaterMark</code> 和 <code>vTaskGetRunTimeStats</code> 量化优化，而不是拍脑袋</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>工程化层面</h4>
+      <ul>
+        <li>引入 Git 分支策略 + <code>.ioc</code> 与手写代码分离，避免 CubeMX 覆盖</li>
+        <li>写主机端测试脚本（Python + pymodbus + python-can + paho-mqtt）做自动化回归</li>
+        <li>把 <code>OD/*.od</code> 的生成流程写进构建脚本，改 OD 自动重新生成 <code>TestSlave.c</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6</span>复习优先级建议</h2>
+  <p>时间有限的话，按这个顺序准备：</p>
+  <table>
+    <thead><tr><th>优先级</th><th>模块</th><th>必须能白板讲清的内容</th></tr></thead>
+    <tbody>
+      <tr><td><b>P0</b></td><td>CANopen</td><td>NMT 四态状态机、SDO vs PDO、对象字典索引含义、0x2000 自定义区、CanFestival 四个移植接口</td></tr>
+      <tr><td><b>P0</b></td><td>FreeRTOS</td><td>任务创建/栈单位、中断优先级与 <code>FromISR</code> 规则、<code>osDelay</code> vs <code>HAL_Delay</code>、共享数据保护</td></tr>
+      <tr><td><b>P1</b></td><td>串口 + DMA</td><td>空闲中断 + 循环 DMA 收不定长帧的完整链路、<code>NDTR</code> 算长度、半满/全满回调</td></tr>
+      <tr><td><b>P1</b></td><td>STM32 基础</td><td>时钟树与定时器 ×2 规则、CAN 波特率计算、HAL 时基为何用 TIM1</td></tr>
+      <tr><td><b>P1</b></td><td>Modbus</td><td>RTU 帧结构与 3.5 字符、<code>eMBPoll</code> 非阻塞轮询、动态改地址的流程</td></tr>
+      <tr><td><b>P2</b></td><td>MQTT / AT</td><td>发布订阅模型与 QoS、AT 指令交互框架、环形队列作用、cJSON 内存管理</td></tr>
+      <tr><td><b>P2</b></td><td>C 语言</td><td><code>volatile</code> / <code>static</code> / 位操作 / 字节对齐 / 大小端</td></tr>
+      <tr><td><b>P3</b></td><td>调试与工程化</td><td>HardFault 定位流程、CubeMX 代码隔离、OTA 方案设计</td></tr>
+    </tbody>
+  </table>
+  <div class="callout co-teal">
+    <span class="t">最后一招：准备一个「三分钟项目自述」</span>
+    按「<b>它是什么 → 我怎么分层做的 → 最难的一个技术点怎么解决的 → 如果重做我会改什么</b>」四段讲。
+    最后一段尤其重要——主动说出第 4 章里的坑和改进方案，等于把面试官的「挑刺环节」提前答完，非常加分。
+  </div>
+</section>
+
+<footer>
+  基于 <code>07-canopen-freertos</code> 工程源码逐文件分析生成 · 共 4 大模块 70+ 道面试题
+</footer>
+
+</div>
+</body>
+</html>

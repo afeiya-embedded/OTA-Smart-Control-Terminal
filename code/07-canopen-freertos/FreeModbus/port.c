@@ -4,20 +4,18 @@
 #include "modbus.h"
 
 // 十路线圈   可读可写的 位控制
-#define REG_COILS_SIZE 10
-uint8_t REG_COILS_BUF[REG_COILS_SIZE] = {1, 1, 1, 1, 0, 0, 0, 0, 1, 1};
 // 低位在前， 高位再后
 // 1, 1, 1, 1, 0, 0, 0, 0, | 1, 1
 // 0  1  2  3  4  5  6  7  | 8  9 
 // 0f                      | 03 
 // 对应的十六进制数为： 0x0f 0x03
-
+#define REG_COILS_SIZE 10
+uint8_t REG_COILS_BUF[REG_COILS_SIZE] = {1, 1, 1, 1, 0, 0, 0, 0, 1, 1};
 
 // 十路离散量  只读的位控制 
+// 只读的线圈 
 #define REG_DISC_SIZE  10
 uint8_t REG_DISC_BUF[REG_DISC_SIZE] = {1,1,1,1,0,0,0,0,1,1};
-// 只读的线圈 
-
 
 // 十路保持寄存器  可读可写的2字节寄存器
 #define REG_HOLD_SIZE   10
@@ -25,10 +23,9 @@ uint16_t REG_HOLD_BUF[REG_HOLD_SIZE];
 
 
 // 十路输入寄存器  只读的2字节寄存器 
+// 只读保持寄存器 
 #define REG_INPUT_SIZE  10
 uint16_t REG_INPUT_BUF[REG_INPUT_SIZE];
-// 只读保持寄存器 
-
 
 
 /// CMD4命令处理回调函数

@@ -105,26 +105,25 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-	printf("> OTA Control\n");  
-	printf("> OTA1.1\n");  
+  
 	OLED_Init();
 	OLED_CLS(); // 清除屏幕显示
+	
 	OLED_ShowStr(16,0, (unsigned char*)" OTA Control ", 2);	
-	OLED_ShowStr(0,3,  (unsigned char*)"MQTTServer... --", 2);	
+	OLED_ShowStr(0,3,  (unsigned char*)"MQTTServer... ", 2);	
 	OLED_ShowStr(0,6,  (unsigned char*)"OTA1.1          ", 2);	
+	
 	//AHT20_Init();
 	INA226_Init();
 	
 	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE); //使能串UART3 IDLE(空闲)中断
 	HAL_UART_Receive_DMA(&huart3, RX3_Buf, DMA_BUF_SIZE); //设置DMA传输，将uart3的数据搬运到RX3_Buf中
-	
-
 
 	Queue_Init(&QUART3) ; // 队列初始化
 	if(MQTT_Connect_Server() == SET) 
 	{
-			MQTT_Download_Flag = 1 ; //  开启解析 服务器数据的标志位
-			//printf("MQTT 服务器连接成功  \n");
+		MQTT_Download_Flag = 1 ; //  开启解析 服务器数据的标志位
+		//printf("MQTT 服务器连接成功  \n");
 	}
 	
   /* USER CODE END 2 */
@@ -133,21 +132,21 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		Modbus_Parse(); 
-		
-		if(MQTT_UPLoad_Flag) // 每隔5秒执行1次 
-		{
-				MQTT_UPLoad_Flag = 0 ;
-				MQTT_SendData((uint8_t *)PUB1,1,NULL);
-		}
-		// 接收固件并擦除Flash ， 耗时操作不能写到中断函数内
-		// 开始进行OTA升级操作
-		if(MQTT_OTA_FLAG)  
-		{
-				MQTT_OTA_FLAG = 0 ; 
-				HAL_Delay(1000); // 延时1秒
-				MQTT_OTA_GetFW(); 
-		}
+	Modbus_Parse(); 
+	
+	if(MQTT_UPLoad_Flag) // 每隔5秒执行1次 
+	{
+		MQTT_UPLoad_Flag = 0 ;
+		MQTT_SendData((uint8_t *)PUB1,1,NULL);
+	}
+	// 接收固件并擦除Flash ， 耗时操作不能写到中断函数内
+	// 开始进行OTA升级操作
+	if(MQTT_OTA_FLAG)  
+	{
+		MQTT_OTA_FLAG = 0 ; 
+		HAL_Delay(1000); // 延时1秒
+		MQTT_OTA_GetFW(); 
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

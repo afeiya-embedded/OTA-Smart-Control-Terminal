@@ -14,8 +14,8 @@
 #define BootLoader_Size         0x2000U         // BootLoader的大小 8K
 #define Application_Size        0x7000U         // APP 应用程序的大小 28K
 
-#define Application_1_Addr      0x08002000U     // 应用程序1的首地址 大小 29K 0x08002000 + 0x7000
-#define Application_2_Addr      0x08009000U     // 应用程序2的首地址 大小 29K 0x08009000 + 0x7000
+#define Application_1_Addr      0x08002000U     // 应用程序1的首地址 
+#define Application_2_Addr      0x08009000U     // 应用程序2的首地址 
 /*==========================================*/
 
 /* 启动的步骤 */

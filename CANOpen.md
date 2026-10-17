@@ -503,6 +503,7 @@ typedef struct
 } CanTxMsg;
 
 
+
 // ---------  to be called by user app ---------
 void initTimer(void);
 UNS8 canSend(CAN_PORT notused, Message *m);

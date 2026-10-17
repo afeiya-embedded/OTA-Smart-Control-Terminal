@@ -120,12 +120,12 @@ int main(void)
 	// 等待esp8266 输出初始化日志, 要不然一旦开启uart3就会触发dma中断,早期的esp8266初始化的数据波特率不是
 	// 115200, 会造成uart3的错误,要在uart3中做错误恢复
 	
-	printf("Uart1 init is ok\n");
-	printf("CANopen Test\n");  
+//	printf("Uart1 init is ok\n");
+//	printf("CANopen Test\n");  
 	//EEPROM_Test();
 	OLED_Init();
 	OLED_CLS(); // 清除屏幕显示
-	//OLED_ShowStr(0,0, (unsigned char*)"CANopen Control", 2);	
+	OLED_ShowStr(0,0, (unsigned char*)"Stram Control", 2);	
 	AHT20_Init();
 	INA226_Init();
 	
@@ -230,12 +230,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	// 定时1ms, 产生中断 
 	if(htim->Instance == TIM1) 
 	{	
-			Count500ms++ ; 
-			if(Count500ms >= 500 )  
-			{
-					Count500ms = 0 ; 
-					TIM1_Timeout_Flag = 1; 
-			}
+		Count500ms++ ; 
+		if(Count500ms >= 500 )  
+		{
+			Count500ms = 0 ; 
+			TIM1_Timeout_Flag = 1; 
+		}
 	}
 	
 	// 定时10ms, 产生中断 

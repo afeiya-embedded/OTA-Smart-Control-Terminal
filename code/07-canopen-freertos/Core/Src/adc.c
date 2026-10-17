@@ -123,7 +123,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 void ADC_VR_Test(void)
 {
 	uint8_t str[32]={0};
-	OLED_ShowStr(16,0, (unsigned char*)"ADC VR Test", 2);	
+	//OLED_ShowStr(16,0, (unsigned char*)"ADC VR Test", 2);	
 	uint32_t adc_value = 0 ; 
 	for(uint8_t i=0;i<10;i++)
 	{
@@ -141,7 +141,7 @@ void ADC_VR_Test(void)
 	float val = (adc_value*3.3/4095); 
 	printf("VR : %.2fV\n",val);
 	sprintf((char * )str,"VR : %.2fV",val);
-	OLED_ShowStr(0,4,(unsigned char *)str,2);     //测试6*16字符	
+	//OLED_ShowStr(0,4,(unsigned char *)str,2);     	
 	HAL_Delay(1000);
 
 }
@@ -149,15 +149,15 @@ void ADC_VR_Test(void)
 void ADC_CPU_Test(void)
 {
 	uint8_t str[32]={0};
-	OLED_ShowStr(16,0, (unsigned char*)"ADC CPU Test", 2);	
+	//OLED_ShowStr(16,0, (unsigned char*)"ADC CPU Test", 2);	
 	uint32_t adc_value = 0 ; 
 	for(uint8_t i=0;i<10;i++)
 	{
-			HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-			if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
-			{
-					adc_value += HAL_ADC_GetValue(&hadc1) ; 
-			}
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
+		{
+			adc_value += HAL_ADC_GetValue(&hadc1) ; 
+		}
 	
 	}
 	adc_value = adc_value /10 ;  // 10次求平均 
@@ -168,7 +168,7 @@ void ADC_CPU_Test(void)
 	float val=(1.43-adc_value*3.3/4095)/0.0043+25;
 	printf("CPU : %.1f C\n",val);
 	sprintf((char * )str,"CPU : %.1f C",val);
-	OLED_ShowStr(0,5,(unsigned char *)str,2); 
+	//OLED_ShowStr(0,5,(unsigned char *)str,2); 
 	HAL_Delay(1000);
 
 }
@@ -215,11 +215,11 @@ void ADC_VR_CPU_Test(void)
 	}
 	for(uint8_t i=0;i<10;i++)
 	{
-			HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-			if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
-			{
-					adc_value += HAL_ADC_GetValue(&hadc1) ; 
-			}
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
+		{
+			adc_value += HAL_ADC_GetValue(&hadc1) ; 
+		}
 	
 	}
 	adc_value = adc_value /10 ;  // 10次求平均 
@@ -249,11 +249,11 @@ void ADC_VR_CPU_Read(void)
 	
 	for(uint8_t i=0;i<10;i++)
 	{
-			HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-			if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
-			{
-					adc_value += HAL_ADC_GetValue(&hadc1) ; 
-			}
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK )   //  等待adc 转换结束 
+		{
+			adc_value += HAL_ADC_GetValue(&hadc1) ; 
+		}
 	}
 	adc_value = adc_value /10 ;  // 10次求平均 
 						
@@ -273,11 +273,11 @@ void ADC_VR_CPU_Read(void)
 	}
 	for(uint8_t i=0;i<10;i++)
 	{
-			HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
-			if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
-			{
-					adc_value += HAL_ADC_GetValue(&hadc1) ; 
-			}
+		HAL_ADC_Start(&hadc1); // 启动ADC , 启动一次工作一次 
+		if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK )   //  等待adc 转换结束 
+		{
+			adc_value += HAL_ADC_GetValue(&hadc1) ; 
+		}
 	
 	}
 	adc_value = adc_value /10 ;  // 10次求平均 

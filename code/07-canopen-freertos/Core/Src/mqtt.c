@@ -5,8 +5,8 @@
 #include "modbus.h"
 #include "cjson.h"
 
-__IO uint8_t MQTT_UPLoad_Flag  = 0 ; // 数据上传服务器标志位， 每隔5秒上传1次
-__IO uint8_t MQTT_Download_Flag = 0 ;  // 开始接收服务器下发的命令，开始解析的标志位
+__IO uint8_t MQTT_UPLoad_Flag  = 0 ; 	// 数据上传服务器标志位， 每隔5秒上传1次
+__IO uint8_t MQTT_Download_Flag = 0 ;  	// 开始接收服务器下发的命令，开始解析的标志位
 
 
 uint8_t *Get_CPUID(void)
@@ -26,7 +26,7 @@ uint8_t *Get_CPUID(void)
 uint8_t ESP8266_Connect_MQTTServer(void)
 {
 	uint8_t buf[64] = {0};
-	OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	//测试8*16字符
+	OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	
 	printf("cpuid:%s\n",Get_CPUID());
 	
 	strcpy((char *)Parse_Substr,"OK\r\n");
@@ -43,25 +43,26 @@ uint8_t ESP8266_Connect_MQTTServer(void)
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
 	strcpy((char *)buf,"AT+MQTTCONN=0,\"broker.emqx.io\",1883,1\r\n");
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
-	if(Test_WIFI4G_CMD_Status(5*1000) == WIFI4G_ERROR)  {
-					return RESET ;  
+	if(Test_WIFI4G_CMD_Status(5*1000) == WIFI4G_ERROR)  
+	{
+		return RESET ;  
 	}
 	
 	//  订阅主题消息 , 订阅一个下行数据的主题 
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
-	OLED_ShowStr(0,4,(unsigned char *)"AT+MQTTSUB",2);				//测试8*16字符
+	//OLED_ShowStr(0,4,(unsigned char *)"AT+MQTTSUB",2);				
 	sprintf((char *)buf,"AT+MQTTSUB=0,\"STM32/DownLoad/%s\",0\r\n",Get_CPUID());  
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
 
 	uint8_t ret = Test_WIFI4G_CMD_Status(5*1000) ;
 	if (ret == WIFI4G_OK)
 	{
-		OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... OK",2);	//测试8*16字符
+		OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... OK",2);	
 		return SET;
 	}
 	else 
 	{
-		OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	//测试8*16字符
+		OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	
 		return  RESET; 
 	}
 }
@@ -69,18 +70,17 @@ uint8_t ESP8266_Connect_MQTTServer(void)
 uint8_t ML307_Connect_MQTTServer(void)
 {
 	uint8_t buf[64] = {0};
-	OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	//测试8*16字符
-	
+	OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	
 	printf("cpuid:%s\n",Get_CPUID());
 	
 	strcpy((char *)Parse_Substr,"OK\r\n");
 	// AT+DTUTASK="1","20"
 	WIFI4G_CMD_Status = WIFI4G_NOT;			// 初始化标志位
-	sprintf((char *)buf, "AT+DTUTASK=\"1\",\"20\"\r\n"); 
+	sprintf((char *)buf, "AT+DTUTASK=\"1\",\"20\"\r\n"); //设置mqtt透传
 	HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 	if (Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)
 	{
-			return RESET;												// 等待OK返回
+		return RESET;												// 等待OK返回
 	}
 	
 	WIFI4G_CMD_Status = WIFI4G_NOT;			// 初始化标志位
@@ -88,30 +88,33 @@ uint8_t ML307_Connect_MQTTServer(void)
 	HAL_UART_Transmit(&huart3, buf, strlen((char *)buf), 1000);
 	if (Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)
 	{
-			return RESET;												// 等待OK返回
+		return RESET;												// 等待OK返回
 	}
 
 	// 设置mqtt服务器
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
 	strcpy((char *)buf,"AT+MQTTIP=\"broker.emqx.io\",\"1883\"\r\n");
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
-	if(Test_WIFI4G_CMD_Status(5*1000) == WIFI4G_ERROR)  {
-			return RESET ;  
+	if(Test_WIFI4G_CMD_Status(5*1000) == WIFI4G_ERROR)  
+	{
+		return RESET ;  
 	}
 	
 	//  订阅主题消息 , 订阅一个下行数据的主题 
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
 	sprintf((char *)buf,"AT+MQTTSUB=0,\"STM32/DownLoad/%s\",0\r\n",Get_CPUID());  
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
-	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  {
-			return RESET ;  
+	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  
+	{
+		return RESET ;  
 	}		
 	//  订阅主题消息 , 订阅一个下行数据的主题 
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
 	sprintf((char *)buf,"AT+MQSUB=\"1\",\"1\",\"4\",\"STM32/DownLoad/%s\"\r\n",Get_CPUID());
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
-	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  {
-			return RESET ;  
+	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  
+	{
+		return RESET ;  
 	}	
 	
 	//  订阅主题消息 , 设置一个上行数据的主题 
@@ -121,72 +124,71 @@ uint8_t ML307_Connect_MQTTServer(void)
 	sprintf((char *)buf,"AT+MQPUB=\"1\",\"1\",\"4\",\"STM32/UpLoad/%s\"\r\n",Get_CPUID());
 	printf("buf=%s\n",buf);
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
-	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  {
-			return RESET ;  
+	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  
+	{
+		return RESET ;  
 	}	
 	
 	//  设置单通道通信 ， 1个上行 1个下行 
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
 	sprintf((char *)buf,"AT+MQMULTEN=0\r\n"); // 
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
-	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  {
-			return RESET ;  
+	if(Test_WIFI4G_CMD_Status(1000) == WIFI4G_ERROR)  
+	{
+		return RESET ;  
 	}	
 			
 	// AT+REST 重启后模块配置生效 
 	
 	//  订阅主题消息 , 订阅一个下行数据的主题 
-
 	WIFI4G_CMD_Status = WIFI4G_NOT ;	 // 初始化标志位 
 	sprintf((char *)buf,"AT+REST\r\n");
-	strcpy((char *)Parse_Substr,"MQTT_CONNECT:");// 服务器连接成功的返回值
+	//strcpy((char *)Parse_Substr,"MQTT_CONNECT:");// 服务器连接成功的返回值
 	HAL_UART_Transmit(&huart3,buf,strlen((char *)buf),1000);
 	uint8_t ret = Test_WIFI4G_CMD_Status(180*1000) ;
 	if (ret == WIFI4G_OK)
 	{
-			OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... OK",2);	//测试8*16字符
-			return SET;
+		OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... OK",2);	
+		return SET;
 	}
 	else 
 	{
-			OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	//测试8*16字符
-			return  RESET; 
+		OLED_ShowStr(0,4,(unsigned char *)"MQTTServer... --",2);	
+		return  RESET; 
 	}
 }
-
 
 
 uint8_t MQTT_Connect_Server(void)
 {
 	#if MQTT_WIFI_4G_ENABLE 
-	// 连接wifi 
+	// 连接wifi MQTT_WIFI_4G_ENABLE=0
 	ESP8266_Connect_WIFI(); 
 	// 连接mqtt服务器
 	if( ESP8266_Connect_MQTTServer() == SET) 
 	{
-			MQTT_Download_Flag = 1 ; //  开启解析 服务器数据的标志位
-			printf("MQTT 服务器连接成功  \n");
+		MQTT_Download_Flag = 1 ; //  开启解析 服务器数据的标志位
+		printf("MQTT 服务器连接成功  \n");
 	}
 	
 	#else 
 	// 连接mqtt服务器
 	if( ML307_Connect_MQTTServer() == SET) 
 	{
-			MQTT_Download_Flag = 1 ; //  开启解析 服务器数据的标志位
-			printf("MQTT 服务器连接成功  \n");
+		MQTT_Download_Flag = 1 ; //  开启解析 服务器数据的标志位
+		printf("MQTT 服务器连接成功  \n");
 	}
 	
-
 	#endif 
 	return SET;
 }
-
 
 
 uint8_t MQTT_SendData(void)
 {
 	static uint8_t sendbuf[128] = {0};
 	static uint8_t buf[256] = {0};
+	
 #if  MQTT_WIFI_4G_ENABLE
 	sprintf((char *)sendbuf,"\"{\\\"TP\\\":%d\\,\\\"RH\\\":%d\\,\\\"VO\\\":%d\\,\\\"CU\\\":%d\\,\\\"PW\\\":%d\\,\\\"VR\\\":%d\\,\\\"CPU\\\":%d}\"",
 	REG_HOLD_BUF[1],REG_HOLD_BUF[2], REG_HOLD_BUF[3],REG_HOLD_BUF[4],REG_HOLD_BUF[5],REG_HOLD_BUF[6],REG_HOLD_BUF[7]);
@@ -219,7 +221,8 @@ uint8_t MQTT_Parse_JsonData(uint8_t *json)
 	cJSON *cjson_led2 = NULL;
 	cJSON *cjson_beep = NULL;
 	cJSON *cjson_relay = NULL;
-		/* 解析整段JSO数据 */
+	
+	/* 解析整段JSO数据 */
 	cjson_device = cJSON_Parse((char *)json);
 	if(cjson_device == NULL)
 	{
@@ -233,59 +236,53 @@ uint8_t MQTT_Parse_JsonData(uint8_t *json)
 	cjson_beep = cJSON_GetObjectItem(cjson_device, "BEEP");
 	cjson_relay = cJSON_GetObjectItem(cjson_device, "RELAY");
 
-//		printf("LED1: %d\n", cjson_led1->valueint);
-//		printf("LED1: %d\n", cjson_led1->valueint);
-//		printf("LED1: %d\n", cjson_led1->valueint);
-//		printf("LED1: %d\n", cjson_led1->valueint);
 	if(cjson_led1 != NULL)
 	{
-			if(cjson_led1->valueint == 0 ) // led1 off 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~LED1_CMD) ;  // 第0位 写0
-			}
-			else 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | LED1_CMD    ; // 第0位 写1
-			}
-
+		if(cjson_led1->valueint == 0 ) // led1 off 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~LED1_CMD) ;  // 第0位 写0
+		}
+		else 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | LED1_CMD    ; // 第0位 写1
+		}
 	}
 	
 	if(cjson_led2 != NULL)
 	{
-			if(cjson_led2->valueint == 0 ) // led2 off 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~LED2_CMD) ;  // 第1位 写0
-			}
-			else 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | LED2_CMD    ; // 第1位 写1
-			}
-
+		if(cjson_led2->valueint == 0 ) // led2 off 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~LED2_CMD) ;  // 第1位 写0
+		}
+		else 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | LED2_CMD    ; // 第1位 写1
+		}
 	}
 	
 	if(cjson_beep != NULL)
 	{
-			if(cjson_beep->valueint == 0 ) // beep off 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~BEEP_CMD) ;  // 第2位 写0
-			}
-			else 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | BEEP_CMD    ; // 第2位 写1
-			}
+		if(cjson_beep->valueint == 0 ) // beep off 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~BEEP_CMD) ;  // 第2位 写0
+		}
+		else 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | BEEP_CMD    ; // 第2位 写1
+		}
 
 	}
 	
 	if(cjson_relay != NULL)
 	{
-			if(cjson_relay->valueint == 0 ) // relay off 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~RELAY_CMD) ;  // 第3位 写0
-			}
-			else 
-			{
-					REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | RELAY_CMD    ; // 第3位 写1
-			}
+		if(cjson_relay->valueint == 0 ) // relay off 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] & (~RELAY_CMD) ;  // 第3位 写0
+		}
+		else 
+		{
+			REG_HOLD_BUF[0] = REG_HOLD_BUF[0] | RELAY_CMD    ; // 第3位 写1
+		}
 
 	}
 	

@@ -323,6 +323,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	static uint32_t old_uwTick =0; 
 	if( (uwTick - old_uwTick) < 200 )  return ; 	
+	//按键去抖
 	// uwTick 是全局变量, 每隔1ms 累加一次
 	// 第1次进入时 , 时间差会大于200 , if( (uwTick - old_uwTick) < 200 ) 这个条件不成立 
 	// 第2次进入时 小时200ms时 不满足条件, 会直接返回 
@@ -419,7 +420,7 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 	  if(huart->Instance == USART1)                                   //判断是否是串口1
     {
 			
-				if((__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) ||  
+		if((__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) ||  
             __HAL_UART_GET_FLAG(huart, UART_FLAG_NE) )== SET )   //判断是否是帧错误或者噪音中断
         {
             __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_FE);
@@ -441,9 +442,9 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 					  //printf("ILength=%d\n",Length);					   
         }
     }
-		else if(huart->Instance == USART3)                                  //判断是否是串口3
+	else if(huart->Instance == USART3)                                  //判断是否是串口3
     {
-			  if((__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) ||  
+		if((__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) ||  
             __HAL_UART_GET_FLAG(huart, UART_FLAG_NE) )== SET )   //判断是否是帧错误或者噪音中断
         {
             __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_FE);
