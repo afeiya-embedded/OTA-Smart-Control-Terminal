@@ -39,7 +39,6 @@ uint8_t Read_SlaveAddress(uint8_t addr,uint8_t *pdata)
 	return SET;
 }
 
-
 void Modbus_Init(void)
 {
 	// 程序执行后， 会自动从EEPROM读取设备的地址

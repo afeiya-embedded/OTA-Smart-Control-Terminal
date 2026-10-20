@@ -261,9 +261,3 @@ void ESP8266_Test(void)
 	}
 	HAL_Delay(200);
 }
-
-
-
-
-
-

@@ -1,0 +1,6 @@
+--cpu Cortex-M3 -g --apcs=interwork --pd "__MICROLIB SETA 1" -I ../Drivers/CMSIS/Include
+-I.\RTE\_07-canopen-freertos
+-IE:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include
+-IE:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include
+--pd "__UVISION_VERSION SETA 524" --pd "_RTE_ SETA 1" --pd "STM32F10X_MD SETA 1"
+--list startup_stm32f103xb.lst --xref -o 07-canopen-freertos\startup_stm32f103xb.o --depend 07-canopen-freertos\startup_stm32f103xb.d "startup_stm32f103xb.s"
